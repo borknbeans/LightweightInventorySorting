@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "borknbeans.lightweightinventorysorting.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"MixinInventoryScreen",
+		"MixinGenericContainerScreen",
+		"MixinShulkerBoxScreen"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

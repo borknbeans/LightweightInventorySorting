@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "lightweight-inventory-sorting",
+	"version": "1.0.0",
+	"name": "Lightweight Inventory Sorting",
+	"description": "Lightweight inventory sorting",
+	"authors": [
+		"BorknBeans"
+	],
+	"contact": {
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT License",
+	"icon": "assets/lightweight-inventory-sorting/logo.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"borknbeans.lightweightinventorysorting.LightweightInventorySorting"
+		],
+		"client": [
+			"borknbeans.lightweightinventorysorting.LightweightInventorySortingClient"
+		]
+	},
+	"mixins": [
+		"lightweight-inventory-sorting.mixins.json",
+		{
+			"config": "lightweight-inventory-sorting.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
