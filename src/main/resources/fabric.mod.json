@@ -8,7 +8,7 @@
 		"BorknBeans"
 	],
 	"contact": {
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/ebork11/LightweightInventorySorting/tree/main"
 	},
 	"license": "MIT License",
 	"icon": "assets/lightweight-inventory-sorting/logo.png",
