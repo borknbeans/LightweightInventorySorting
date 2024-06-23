@@ -33,6 +33,8 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
 
         inventorySortButton = new ContainerSortButton(0, 0, width, height, Text.literal("S"), 9, 35, this);
 
+        setButtonCoordinates();
+
         // Add button to the screen
         this.addDrawableChild(inventorySortButton);
     }
@@ -40,10 +42,14 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
     @Inject(method = "render", at = @At("RETURN"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (inventorySortButton != null) {
-            inventorySortButton.setX(this.x + this.backgroundWidth - 20);
-            inventorySortButton.setY(this.height / 2 - 15);
+            setButtonCoordinates();
 
             inventorySortButton.render(context, mouseX, mouseY, delta);
         }
+    }
+
+    private void setButtonCoordinates() {
+        inventorySortButton.setX(this.x + this.backgroundWidth - 20);
+        inventorySortButton.setY(this.height / 2 - 15);
     }
 }
