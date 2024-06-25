@@ -1,6 +1,7 @@
 package borknbeans.lightweightinventorysorting.mixin.client;
 
 import borknbeans.lightweightinventorysorting.ContainerSortButton;
+import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -28,10 +29,9 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
 
     @Inject(method = "init", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
-        int width = 12;
-        int height = 12;
+        int size = LightweightInventorySortingConfig.buttonSize.getButtonSize();
 
-        inventorySortButton = new ContainerSortButton(0, 0, width, height, Text.literal("S"), 9, 35, this);
+        inventorySortButton = new ContainerSortButton(0, 0, size, size, Text.literal("S"), 9, 35, this);
 
         setButtonCoordinates();
 
@@ -49,7 +49,7 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
     }
 
     private void setButtonCoordinates() {
-        inventorySortButton.setX(this.x + this.backgroundWidth - 20);
-        inventorySortButton.setY(this.height / 2 - 15);
+        inventorySortButton.setX(this.x + this.backgroundWidth - 20 + LightweightInventorySortingConfig.xOffsetInventory);
+        inventorySortButton.setY(this.height / 2 - 15 + LightweightInventorySortingConfig.yOffsetInventory);
     }
 }

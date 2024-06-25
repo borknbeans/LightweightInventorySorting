@@ -1,6 +1,7 @@
 package borknbeans.lightweightinventorysorting.mixin.client;
 
 import borknbeans.lightweightinventorysorting.ContainerSortButton;
+import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
@@ -27,11 +28,10 @@ public abstract class MixinShulkerBoxScreen extends HandledScreen<ShulkerBoxScre
         super.init();
 
         // Initialize button
-        int x = this.x + this.backgroundWidth - 20;
-        int y = this.y + 4;
-        int width = 12;
-        int height = 12;
-        containerSortButton = new ContainerSortButton(x, y, width, height, Text.literal("S"), 0, getScreenHandler().slots.size() - 37, this);
+        int x = this.x + this.backgroundWidth - 20 + LightweightInventorySortingConfig.xOffsetContainer;
+        int y = this.y + 4 + LightweightInventorySortingConfig.yOffsetContainer;
+        int size = LightweightInventorySortingConfig.buttonSize.getButtonSize();
+        containerSortButton = new ContainerSortButton(x, y, size, size, Text.literal("S"), 0, getScreenHandler().slots.size() - 37, this);
 
         // Add button to the screen
         this.addDrawableChild(containerSortButton);

@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "lightweight-inventory-sorting",
-	"version": "1.0.1",
+	"version": "1.1.0-beta",
 	"name": "Lightweight Inventory Sorting",
 	"description": "Lightweight inventory sorting",
 	"authors": [
@@ -19,6 +19,9 @@
 		],
 		"client": [
 			"borknbeans.lightweightinventorysorting.LightweightInventorySortingClient"
+		],
+		"modmenu": [
+			"borknbeans.lightweightinventorysorting.config.ModMenu"
 		]
 	},
 	"mixins": [

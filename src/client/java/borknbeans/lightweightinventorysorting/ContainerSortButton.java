@@ -1,5 +1,6 @@
 package borknbeans.lightweightinventorysorting;
 
+import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -14,8 +15,8 @@ import net.minecraft.util.collection.DefaultedList;
 
 public class ContainerSortButton extends ClickableWidget {
 
-    private static final Identifier BUTTON_TEXTURE = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button");
-    private static final Identifier BUTTON_HOVER_TEXTURE = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button_hover");
+    private Identifier buttonTexture = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button");
+    private Identifier buttonHoverTexture = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button_hover");
 
     private int startIndex, endIndex;
     private HandledScreen<?> screen;
@@ -26,17 +27,18 @@ public class ContainerSortButton extends ClickableWidget {
         this.startIndex = startIndex;
         this.endIndex = endIndex;
 
+        buttonTexture = LightweightInventorySortingConfig.buttonSize.getButtonTexture();
+        buttonHoverTexture = LightweightInventorySortingConfig.buttonSize.getButtonHoverTexture();
+
         this.screen = screen;
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Draw the texture (fill with width and height of button)
-        context.drawGuiTexture(BUTTON_TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
-        // Optional: Draw hover effect or additional text
         if (this.isHovered()) {
-            context.drawGuiTexture(BUTTON_HOVER_TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            context.drawGuiTexture(buttonHoverTexture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        } else {
+            context.drawGuiTexture(buttonTexture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         }
     }
 
