@@ -5,7 +5,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.api.Requirement;
+import me.shedaniel.clothconfig2.gui.entries.TextListEntry;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
@@ -21,11 +21,26 @@ public class ModMenu implements ModMenuApi {
                 .setParentScreen(parent)
                 .setTitle(Text.of("Lightweight Inventory Sorting"));
 
-        ConfigCategory general = builder.getOrCreateCategory(Text.of("Sort Button Settings"));
-
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-        general.addEntry(entryBuilder.startEnumSelector(
+        ConfigCategory generalSettings = builder.getOrCreateCategory(Text.of("General Settings"));
+
+        generalSettings.addEntry(entryBuilder.startTextDescription(Text.of("Sorting Options"))
+                .build());
+
+        generalSettings.addEntry(entryBuilder.startEnumSelector(
+                        Text.translatable("Sorting Type"),
+                        SortTypes.class,
+                        LightweightInventorySortingConfig.sortType
+                ).setDefaultValue(SortTypes.ALPHANUMERIC)
+                .setSaveConsumer(newValue -> LightweightInventorySortingConfig.sortType = newValue)
+                .setTooltip(Text.translatable("Change the sorting method used:\nALPHANUMERIC\nREVERSE_ALPHANUMERIC"))
+                .build());
+
+        generalSettings.addEntry(entryBuilder.startTextDescription(Text.of("Button Options"))
+                .build());
+
+        generalSettings.addEntry(entryBuilder.startEnumSelector(
                         Text.translatable("Button Size"),
                         ButtonSize.class,
                         LightweightInventorySortingConfig.buttonSize
@@ -34,36 +49,36 @@ public class ModMenu implements ModMenuApi {
                 .setTooltip(Text.translatable("Change the size of the sort button:\nSMALL\nMEDIUM\nLARGE"))
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(
+        generalSettings.addEntry(entryBuilder.startIntField(
                     Text.translatable("Inventory X Offset"),
                     LightweightInventorySortingConfig.xOffsetInventory
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> LightweightInventorySortingConfig.xOffsetInventory = newValue)
-                .setTooltip(Text.translatable("Move the inventory sort button on the x-axis"))
+                .setTooltip(Text.translatable("Move the inventory sort button on the x-axis\nPOSITIVE: Right\nNEGATIVE: Left"))
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(
+        generalSettings.addEntry(entryBuilder.startIntField(
                         Text.translatable("Inventory Y Offset"),
                         LightweightInventorySortingConfig.yOffsetInventory
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> LightweightInventorySortingConfig.yOffsetInventory = newValue)
-                .setTooltip(Text.translatable("Move the inventory sort button on the y-axis"))
+                .setTooltip(Text.translatable("Move the inventory sort button on the y-axis\nPOSITIVE: Down\nNEGATIVE: Up"))
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(
+        generalSettings.addEntry(entryBuilder.startIntField(
                         Text.translatable("Container X Offset"),
                         LightweightInventorySortingConfig.xOffsetContainer
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> LightweightInventorySortingConfig.xOffsetContainer = newValue)
-                .setTooltip(Text.translatable("Move the container sort button on the x-axis"))
+                .setTooltip(Text.translatable("Move the container sort button on the x-axis\nPOSITIVE: Right\nNEGATIVE: Left"))
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(
+        generalSettings.addEntry(entryBuilder.startIntField(
                         Text.translatable("Container Y Offset"),
                         LightweightInventorySortingConfig.yOffsetContainer
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> LightweightInventorySortingConfig.yOffsetContainer = newValue)
-                .setTooltip(Text.translatable("Move the container sort button on the y-axis"))
+                .setTooltip(Text.translatable("Move the container sort button on the y-axis\nPOSITIVE: Down\nNEGATIVE: Up"))
                 .build());
 
         builder.setSavingRunnable(() -> LightweightInventorySortingConfig.save());

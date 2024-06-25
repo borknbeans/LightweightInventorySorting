@@ -14,6 +14,8 @@ public class LightweightInventorySortingConfig {
     private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "lightweight-inventory-sorting.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    public static SortTypes sortType = SortTypes.ALPHANUMERIC;
+
     public static ButtonSize buttonSize = ButtonSize.LARGE;
     public static int xOffsetInventory = 0;
     public static int yOffsetInventory = 0;
@@ -24,6 +26,7 @@ public class LightweightInventorySortingConfig {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ConfigData data = GSON.fromJson(reader, ConfigData.class);
+                sortType = data.sortType;
                 buttonSize = data.buttonSize;
                 xOffsetInventory = data.xOffsetInventory;
                 yOffsetInventory = data.yOffsetInventory;
@@ -38,6 +41,7 @@ public class LightweightInventorySortingConfig {
     public static void save() {
         try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
             ConfigData data = new ConfigData();
+            data.sortType = sortType;
             data.buttonSize = buttonSize;
             data.xOffsetInventory = xOffsetInventory;
             data.yOffsetInventory = yOffsetInventory;
@@ -50,6 +54,7 @@ public class LightweightInventorySortingConfig {
     }
 
     private static class ConfigData {
+        SortTypes sortType;
         ButtonSize buttonSize;
         int xOffsetInventory;
         int yOffsetInventory;

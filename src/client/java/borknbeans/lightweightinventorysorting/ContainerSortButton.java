@@ -15,8 +15,8 @@ import net.minecraft.util.collection.DefaultedList;
 
 public class ContainerSortButton extends ClickableWidget {
 
-    private Identifier buttonTexture = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button");
-    private Identifier buttonHoverTexture = Identifier.of(LightweightInventorySorting.MOD_ID,"sort_button_hover");
+    private Identifier buttonTexture;
+    private Identifier buttonHoverTexture;
 
     private int startIndex, endIndex;
     private HandledScreen<?> screen;
@@ -74,23 +74,13 @@ public class ContainerSortButton extends ClickableWidget {
         DefaultedList<Slot> slots = screen.getScreenHandler().slots;
         for (int i = startIndex; i <= endIndex; i++) {
             for (int j = startIndex; j <= endIndex - 1; j++) {
-                if (compare(slots.get(j).getStack(), slots.get(j + 1).getStack()) > 0) { // Swap items
+                if (LightweightInventorySortingConfig.sortType.compare(slots.get(j).getStack(), slots.get(j + 1).getStack())) { // Swap items
                     client.interactionManager.clickSlot(syncId, j, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(syncId, j + 1, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(syncId, j, 0, SlotActionType.PICKUP, client.player);
                 }
             }
         }
-    }
-
-    private int compare(ItemStack left, ItemStack right) {
-        if (left.isEmpty() && !right.isEmpty()) {
-            return 1;
-        } else if (right.isEmpty() && !left.isEmpty()) {
-            return -1;
-        }
-
-        return left.getName().getString().compareTo(right.getName().getString());
     }
 
     private void collapseItems() {
