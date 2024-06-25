@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
 	"id": "lightweight-inventory-sorting",
-	"version": "1.1.0-beta",
+	"version": "1.1.0",
 	"name": "Lightweight Inventory Sorting",
-	"description": "Lightweight inventory sorting",
+	"description": "Lightweight client-side inventory Sorting with no extra fluff",
 	"authors": [
 		"BorknBeans"
 	],
@@ -38,6 +38,8 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"another-mod": "*",
+		"modmenu": "*",
+		"cloth-config": "*"
 	}
 }
