@@ -40,6 +40,7 @@ public class SortingHelper {
         // 2. Combine like items
 
         combineLikeItems(client, syncId, sortableSlots);
+        sortItems(client, syncId, slots, sortableSlots, startIndex);
     }
 
     /***
@@ -56,37 +57,38 @@ public class SortingHelper {
             if (stack.getCount() == stack.getMaxCount()) { continue; }
 
             int index = i - 1;
-            boolean inHand = false;
-            Item itemInHand = null;
-            int handCount = 0;
+
+            HandHelper hand = new HandHelper();
             for (int j = index; j >= 0; j--) {
                 ItemStack stackPrev = sortedSlots.get(j).getStack();
 
-                if ((itemInHand != null && !stackPrev.isOf(itemInHand) || (!stack.isOf(stackPrev.getItem()) && !inHand))) {
-                    if (inHand) {
-                        move(client, syncId, 0, sortedSlots.get(i).getIndex(), inHand);
-                        inHand = false;
+                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks dont match
+                if ((hand.item != null && !stackPrev.isOf(hand.item) || (!stack.isOf(stackPrev.getItem()) && !hand.exists))) {
+                    if (hand.exists) {
+                        move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand.exists);
+                        hand.exists = false;
+                        hand.Reset();
                     }
 
                     break;
                 }
                 if (stackPrev.getCount() == stackPrev.getMaxCount()) { continue; }
 
-                int combinedCount = inHand ? handCount + stackPrev.getCount() : stack.getCount() + stackPrev.getCount();
+                int combinedCount = hand.exists ? hand.count + stackPrev.getCount() : stack.getCount() + stackPrev.getCount();
 
                 if (combinedCount <= stackPrev.getMaxCount()) {
                     // Move with no remainder
-                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), inHand);
+                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand.exists);
                     // remove item from sortedSlots
                     sortedSlots.remove(i);
                     break;
                 } else {
                     // Move with remainder
-                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), inHand);
+                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand.exists);
                     // Store hand item information
-                    inHand = true;
-                    itemInHand = stackPrev.getItem();
-                    handCount = combinedCount - stackPrev.getMaxCount();
+                    hand.exists = true;
+                    hand.item = stackPrev.getItem();
+                    hand.count = combinedCount - stackPrev.getMaxCount();
                 }
             }
         }
@@ -98,5 +100,63 @@ public class SortingHelper {
         }
 
         client.interactionManager.clickSlot(syncId, dest, 0, SlotActionType.PICKUP, client.player);
+    }
+
+    private static void sortItems(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int startIndex) {
+        HandHelper hand = new HandHelper();
+
+        for (int i = 0; i < sortedSlots.size(); i++) {
+            if (sortedSlots.get(i).sorted) { continue; }
+
+            sortItem(client, syncId, slots, sortedSlots, i, startIndex, hand);
+        }
+    }
+
+    private static void sortItem(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int index, int startIndex, HandHelper hand) {
+        int dest = startIndex + index;
+        ItemStack destStack = slots.get(dest).getStack();
+
+        move(client, syncId, sortedSlots.get(index).getIndex(), dest, hand.exists);
+        sortedSlots.get(index).sorted = true;
+
+        if (!destStack.isEmpty()) {
+            hand.exists = true;
+            hand.item = destStack.getItem();
+            hand.count = destStack.getCount();
+
+            // Get item in slot dest
+            int sortedSlotListIndex = -1;
+            for (int i = 0; i < sortedSlots.size(); i++) {
+                if (sortedSlots.get(i).getIndex() == dest) {
+                    sortedSlotListIndex = i;
+                    break;
+                }
+            }
+
+            if (sortedSlotListIndex == -1) {
+                System.out.println("Something went wrong with sorting the items.");
+                return;
+            }
+
+            sortItem(client, syncId, slots, sortedSlots, sortedSlotListIndex, startIndex, hand);
+        } else {
+            hand.Reset();
+        }
+    }
+}
+
+class HandHelper {
+    public boolean exists;
+    public Item item;
+    public int count;
+
+    public HandHelper() {
+        Reset();
+    }
+
+    public void Reset() {
+        exists = false;
+        item = null;
+        count = 0;
     }
 }
