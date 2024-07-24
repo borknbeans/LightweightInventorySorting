@@ -34,10 +34,10 @@ public class SortingHelper {
 
 
         new Thread(() -> {
-            combineLikeItems(client, syncId, sortableSlots);
-            try {
-                Thread.sleep(LightweightInventorySortingConfig.sortDelay);
-            } catch (InterruptedException e) {}
+            combineLikeItems(client, syncId, slots, sortableSlots, startIndex, endIndex);
+
+            sortableSlots.sort(new SortableSlotComparator());
+
             sortItems(client, syncId, slots, sortableSlots, startIndex);
         }).start();
     }
@@ -49,7 +49,7 @@ public class SortingHelper {
      * @param syncId
      * @param sortedSlots
      */
-    private static void combineLikeItems(MinecraftClient client, int syncId, List<SortableSlot> sortedSlots) {
+    private static void combineLikeItems(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int startIndex, int endIndex) {
         for (int i = sortedSlots.size() - 1; i >= 1; i--) {
             ItemStack stack = sortedSlots.get(i).getStack();
 
@@ -64,8 +64,7 @@ public class SortingHelper {
                 // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks dont match
                 if ((hand.item != null && !stackPrev.isOf(hand.item) || (!stack.isOf(stackPrev.getItem()) && !hand.exists))) {
                     if (hand.exists) {
-                        move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand.exists);
-                        hand.exists = false;
+                        move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
                         hand.Reset();
                     }
 
@@ -77,17 +76,34 @@ public class SortingHelper {
 
                 if (combinedCount <= stackPrev.getMaxCount()) {
                     // Move with no remainder
-                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand.exists);
+                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // remove item from sortedSlots
                     sortedSlots.remove(i);
                     break;
                 } else {
                     // Move with remainder
-                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand.exists);
+                    move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // Store hand item information
                     hand.exists = true;
                     hand.item = stackPrev.getItem();
                     hand.count = combinedCount - stackPrev.getMaxCount();
+                }
+            }
+
+            if (hand.exists) {
+                int emptySlot = -1;
+                for (int j = startIndex; j < endIndex; j++) {
+                    if (slots.get(j).getStack().isEmpty()) {
+                        emptySlot = j;
+                        break;
+                    }
+                }
+
+                if (emptySlot != -1) {
+                    move(client, syncId, 0, emptySlot, hand);
+                    hand.Reset();
+                } else {
+                    System.out.println("Something went wrong combining items");
                 }
             }
 
@@ -97,15 +113,18 @@ public class SortingHelper {
         }
     }
 
-    private static void move(MinecraftClient client, int syncId, int source, int dest, boolean inHand) {
-        if (!inHand) {
+    private static void move(MinecraftClient client, int syncId, int source, int dest, HandHelper hand) {
+        if (!hand.exists) {
             client.interactionManager.clickSlot(syncId, source, 0, SlotActionType.PICKUP, client.player);
+            System.out.println("Clicking slot " + source);
         }
 
+        System.out.println("Clicking slot " + dest);
         client.interactionManager.clickSlot(syncId, dest, 0, SlotActionType.PICKUP, client.player);
     }
 
     private static void sortItems(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int startIndex) {
+        System.out.println("Sorting");
         HandHelper hand = new HandHelper();
 
         for (int i = 0; i < sortedSlots.size(); i++) {
@@ -121,9 +140,15 @@ public class SortingHelper {
         } catch (InterruptedException e) {}
 
         int dest = startIndex + index;
+
+        if (dest == sortedSlots.get(index).getIndex()) {
+            sortedSlots.get(index).sorted = true;
+            return;
+        }
+
         ItemStack destStack = slots.get(dest).getStack();
 
-        move(client, syncId, sortedSlots.get(index).getIndex(), dest, hand.exists);
+        move(client, syncId, sortedSlots.get(index).getIndex(), dest, hand);
         sortedSlots.get(index).sorted = true;
 
         if (!destStack.isEmpty()) {
