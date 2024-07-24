@@ -13,6 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
+import java.util.concurrent.TimeUnit;
+
 public class ContainerSortButton extends ClickableWidget {
 
     private Identifier buttonTexture;
@@ -59,12 +61,14 @@ public class ContainerSortButton extends ClickableWidget {
     }
 
     private void sortInventory() {
-        for (int i = startIndex; i <= endIndex; i++) {
-            // Sort items into alphabetical order
-            bubbleSort();
-            // Combine like items
-            collapseItems();
-        }
+        new Thread(() -> { // TODO: Make delay customizable and toggleable
+            for (int i = startIndex; i <= endIndex; i++) {
+                // Sort items into alphabetical order
+                bubbleSort();
+                // Combine like items
+                collapseItems();
+            }
+        }).start();
     }
 
     private void bubbleSort() {
@@ -78,6 +82,11 @@ public class ContainerSortButton extends ClickableWidget {
                     client.interactionManager.clickSlot(syncId, j, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(syncId, j + 1, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(syncId, j, 0, SlotActionType.PICKUP, client.player);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -96,6 +105,11 @@ public class ContainerSortButton extends ClickableWidget {
                 client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
                 client.interactionManager.clickSlot(syncId, i - 1, 0, SlotActionType.PICKUP, client.player);
                 client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
