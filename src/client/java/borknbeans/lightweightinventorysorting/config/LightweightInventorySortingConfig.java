@@ -22,6 +22,8 @@ public class LightweightInventorySortingConfig {
     public static int xOffsetContainer = 0;
     public static int yOffsetContainer = 0;
 
+    public static int sortDelay = 5;
+
     public static void load() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
@@ -32,6 +34,7 @@ public class LightweightInventorySortingConfig {
                 yOffsetInventory = data.yOffsetInventory;
                 xOffsetContainer = data.xOffsetContainer;
                 yOffsetContainer = data.yOffsetContainer;
+                sortDelay = data.sortDelay;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -47,6 +50,7 @@ public class LightweightInventorySortingConfig {
             data.yOffsetInventory = yOffsetInventory;
             data.xOffsetContainer = xOffsetContainer;
             data.yOffsetContainer = yOffsetContainer;
+            data.sortDelay = sortDelay;
             GSON.toJson(data, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,5 +64,6 @@ public class LightweightInventorySortingConfig {
         int yOffsetInventory;
         int xOffsetContainer;
         int yOffsetContainer;
+        int sortDelay;
     }
 }

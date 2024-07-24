@@ -37,6 +37,14 @@ public class ModMenu implements ModMenuApi {
                 .setTooltip(Text.translatable("Change the sorting method used:\nALPHANUMERIC\nREVERSE_ALPHANUMERIC"))
                 .build());
 
+        generalSettings.addEntry(entryBuilder.startIntField(
+                        Text.translatable("Sorting Delay"),
+                        LightweightInventorySortingConfig.sortDelay
+                ).setDefaultValue(5)
+                .setSaveConsumer(newValue -> LightweightInventorySortingConfig.sortDelay = newValue)
+                .setTooltip(Text.translatable("Increase delay between sorting steps (Useful for multiplayer servers)"))
+                .build());
+
         generalSettings.addEntry(entryBuilder.startTextDescription(Text.of("Button Options"))
                 .build());
 
