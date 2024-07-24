@@ -22,7 +22,7 @@ public class LightweightInventorySortingConfig {
     public static int xOffsetContainer = 0;
     public static int yOffsetContainer = 0;
 
-    public static int sortDelay = 5;
+    public static int sortDelay = 0;
 
     public static void load() {
         if (CONFIG_FILE.exists()) {

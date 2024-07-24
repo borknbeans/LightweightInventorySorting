@@ -40,7 +40,7 @@ public class ModMenu implements ModMenuApi {
         generalSettings.addEntry(entryBuilder.startIntField(
                         Text.translatable("Sorting Delay"),
                         LightweightInventorySortingConfig.sortDelay
-                ).setDefaultValue(5)
+                ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> LightweightInventorySortingConfig.sortDelay = newValue)
                 .setTooltip(Text.translatable("Increase delay between sorting steps (Useful for multiplayer servers)"))
                 .build());

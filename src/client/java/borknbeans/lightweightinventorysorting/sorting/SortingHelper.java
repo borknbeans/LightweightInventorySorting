@@ -2,6 +2,7 @@ package borknbeans.lightweightinventorysorting.sorting;
 
 import borknbeans.lightweightinventorysorting.SortableSlot;
 import borknbeans.lightweightinventorysorting.SortableSlotComparator;
+import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,16 +32,14 @@ public class SortingHelper {
 
         int syncId = client.player.currentScreenHandler.syncId;
 
-        // 1. Combine like items?
-        // 2. Move into desired slot
 
-        // OR
-
-        // 1. Move into desired slot
-        // 2. Combine like items
-
-        combineLikeItems(client, syncId, sortableSlots);
-        sortItems(client, syncId, slots, sortableSlots, startIndex);
+        new Thread(() -> {
+            combineLikeItems(client, syncId, sortableSlots);
+            try {
+                Thread.sleep(LightweightInventorySortingConfig.sortDelay);
+            } catch (InterruptedException e) {}
+            sortItems(client, syncId, slots, sortableSlots, startIndex);
+        }).start();
     }
 
     /***
@@ -91,6 +90,10 @@ public class SortingHelper {
                     hand.count = combinedCount - stackPrev.getMaxCount();
                 }
             }
+
+            try {
+                Thread.sleep(LightweightInventorySortingConfig.sortDelay);
+            } catch (InterruptedException e) {}
         }
     }
 
@@ -113,6 +116,10 @@ public class SortingHelper {
     }
 
     private static void sortItem(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int index, int startIndex, HandHelper hand) {
+        try {
+            Thread.sleep(LightweightInventorySortingConfig.sortDelay);
+        } catch (InterruptedException e) {}
+
         int dest = startIndex + index;
         ItemStack destStack = slots.get(dest).getStack();
 

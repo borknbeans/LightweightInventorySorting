@@ -1,11 +1,8 @@
 package borknbeans.lightweightinventorysorting;
 
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Comparator;
 
 public class SortableSlot implements Comparable<SortableSlot> {
 
@@ -30,8 +27,6 @@ public class SortableSlot implements Comparable<SortableSlot> {
 
     @Override
     public int compareTo(@NotNull SortableSlot o) {
-        int result = LightweightInventorySortingConfig.sortType.compare(this.getStack(), o.getStack());
-        return result;
-        //return result != 0 ? result : (this.getStack().getCount() < o.getStack().getCount() ? 1 : 0);
+        return LightweightInventorySortingConfig.sortType.compare(this.getStack(), o.getStack());
     }
 }
