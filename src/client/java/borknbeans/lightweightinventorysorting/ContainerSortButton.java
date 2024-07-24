@@ -82,7 +82,7 @@ public class ContainerSortButton extends ClickableWidget {
         if (client.player == null) {
             return;
         }
-        // TODO: Collapse all items before doing this?
+
         int syncId = client.player.currentScreenHandler.syncId;
         for (int i = 0; i < sortableSlotList.size(); i++) {
             SortableSlot slot = sortableSlotList.get(i);
@@ -91,6 +91,9 @@ public class ContainerSortButton extends ClickableWidget {
 
             moveSlots(client, syncId, sortableSlotList, slot, startIndex + i, false);
         }
+
+        collapseItemsV2(client, syncId, startIndex + sortableSlotList.size());
+        collapseAir(client, syncId, startIndex + sortableSlotList.size());
     }
 
     // Pickup that should be first
@@ -122,10 +125,84 @@ public class ContainerSortButton extends ClickableWidget {
                 return;
             }
 
-            // TODO: Destination slot could be the same item
-            // Could be stackable or could not be
+            if (!destinationStack.isOf(slot.getStack().getItem()) || !(destinationStack.getCount() + slot.getStack().getCount() <= destinationStack.getMaxCount())) {
+                moveSlots(client, syncId, sortableSlotList, destinationSlot, startIndex + sortableSlotList.indexOf(destinationSlot), true);
+            }
+        }
+    }
 
-            moveSlots(client, syncId, sortableSlotList, destinationSlot, startIndex + sortableSlotList.indexOf(destinationSlot), true);
+    private void collapseItems() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        int syncId = client.player.currentScreenHandler.syncId;
+
+        DefaultedList<Slot> slots = screen.getScreenHandler().slots;
+        for (int i = endIndex; i > startIndex; i--) {
+            ItemStack right = slots.get(i).getStack();
+            ItemStack left = slots.get(i - 1).getStack();
+
+            if (right.isOf(left.getItem())) { // Same Type of item
+                client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
+                client.interactionManager.clickSlot(syncId, i - 1, 0, SlotActionType.PICKUP, client.player);
+                client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
+            }
+        }
+    }
+
+    private void collapseItemsV2(MinecraftClient client, int syncId, int sortEndIndex) {
+        DefaultedList<Slot> slots = screen.getScreenHandler().slots;
+
+        for (int i = startIndex; i <= startIndex + sortEndIndex; i++) {
+            ItemStack left = slots.get(i).getStack();
+
+            int rightIndex = i;
+            for (int j = i + 1; j <= endIndex; j++) {
+                ItemStack right = slots.get(j).getStack();
+                if (!right.isEmpty() && right.isOf(left.getItem())) {
+                    rightIndex = j;
+                } else {
+                    break;
+                }
+            }
+
+            if (rightIndex == i) {
+                continue;
+            }
+
+            for (int r = rightIndex; r > i; r--) {
+                client.interactionManager.clickSlot(syncId, r, 0, SlotActionType.PICKUP, client.player);
+                client.interactionManager.clickSlot(syncId, r - 1, 0, SlotActionType.PICKUP, client.player);
+                client.interactionManager.clickSlot(syncId, r, 0, SlotActionType.PICKUP, client.player);
+            }
+        }
+    }
+
+    private void collapseAir(MinecraftClient client, int syncId, int sortEndIndex) {
+        DefaultedList<Slot> slots = screen.getScreenHandler().slots;
+
+        for (int i = startIndex; i <= startIndex + sortEndIndex; i++) {
+            ItemStack left = slots.get(i).getStack();
+
+            if (!left.isEmpty()) {
+                continue;
+            }
+
+            int rightIndex = i;
+            for (int j = i + 1; j <= endIndex; j++) {
+                ItemStack right = slots.get(j).getStack();
+                if (!right.isEmpty()) {
+                    rightIndex = j;
+                    break;
+                }
+            }
+
+            if (rightIndex == i) {
+                continue;
+            }
+
+            for (int r = rightIndex; r > i; r--) {
+                client.interactionManager.clickSlot(syncId, r, 0, SlotActionType.PICKUP, client.player);
+                client.interactionManager.clickSlot(syncId, r - 1, 0, SlotActionType.PICKUP, client.player);
+            }
         }
     }
 
@@ -160,26 +237,6 @@ public class ContainerSortButton extends ClickableWidget {
         }
     }
 
-    private void collapseItems() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int syncId = client.player.currentScreenHandler.syncId;
 
-        DefaultedList<Slot> slots = screen.getScreenHandler().slots;
-        for (int i = endIndex; i > startIndex; i--) {
-            ItemStack right = slots.get(i).getStack();
-            ItemStack left = slots.get(i - 1).getStack();
-
-            if (right.isOf(left.getItem())) { // Same Type of item
-                client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
-                client.interactionManager.clickSlot(syncId, i - 1, 0, SlotActionType.PICKUP, client.player);
-                client.interactionManager.clickSlot(syncId, i, 0, SlotActionType.PICKUP, client.player);
-                try {
-                    Thread.sleep(LightweightInventorySortingConfig.sortDelay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
      */
 }
