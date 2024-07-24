@@ -1,6 +1,7 @@
 package borknbeans.lightweightinventorysorting;
 
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
+import borknbeans.lightweightinventorysorting.sorting.SortingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -57,7 +58,8 @@ public class ContainerSortButton extends ClickableWidget {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (client.player != null) {
-            sortInventoryV2();
+            SortingHelper.sortInventory(client, startIndex, endIndex);
+            // sortInventoryV2();
             // new Thread(this::sortInventory).start();
         } else {
             System.out.println("Player is not available.");
@@ -92,8 +94,8 @@ public class ContainerSortButton extends ClickableWidget {
             moveSlots(client, syncId, sortableSlotList, slot, startIndex + i, false);
         }
 
-        collapseItemsV2(client, syncId, startIndex + sortableSlotList.size());
-        collapseAir(client, syncId, startIndex + sortableSlotList.size());
+        //collapseItemsV2(client, syncId, startIndex + sortableSlotList.size());
+        //collapseAir(client, syncId, startIndex + sortableSlotList.size());
     }
 
     // Pickup that should be first

@@ -30,6 +30,8 @@ public class SortableSlot implements Comparable<SortableSlot> {
 
     @Override
     public int compareTo(@NotNull SortableSlot o) {
-        return LightweightInventorySortingConfig.sortType.compare(this.getStack(), o.getStack());
+        int result = LightweightInventorySortingConfig.sortType.compare(this.getStack(), o.getStack());
+        return result;
+        //return result != 0 ? result : (this.getStack().getCount() < o.getStack().getCount() ? 1 : 0);
     }
 }
