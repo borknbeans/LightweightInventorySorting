@@ -116,15 +116,12 @@ public class SortingHelper {
     private static void move(MinecraftClient client, int syncId, int source, int dest, HandHelper hand) {
         if (!hand.exists) {
             client.interactionManager.clickSlot(syncId, source, 0, SlotActionType.PICKUP, client.player);
-            System.out.println("Clicking slot " + source);
         }
 
-        System.out.println("Clicking slot " + dest);
         client.interactionManager.clickSlot(syncId, dest, 0, SlotActionType.PICKUP, client.player);
     }
 
     private static void sortItems(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int startIndex) {
-        System.out.println("Sorting");
         HandHelper hand = new HandHelper();
 
         for (int i = 0; i < sortedSlots.size(); i++) {
