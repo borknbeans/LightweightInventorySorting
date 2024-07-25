@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "lightweight-inventory-sorting",
-	"version": "1.1.0-1.20.6",
+	"version": "1.1.1+1.21",
 	"name": "Lightweight Inventory Sorting",
 	"description": "Lightweight client-side inventory Sorting with no extra fluff",
 	"authors": [
