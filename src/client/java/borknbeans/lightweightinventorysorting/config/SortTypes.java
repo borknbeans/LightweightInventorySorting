@@ -7,7 +7,7 @@ public enum SortTypes {
     ALPHANUMERIC,
     REVERSE_ALPHANUMERIC;
 
-    public boolean compare(ItemStack left, ItemStack right) {
+    public int compare(ItemStack left, ItemStack right) {
         switch (this) {
             case ALPHANUMERIC:
                 return alphanumeric(left, right);
@@ -15,26 +15,26 @@ public enum SortTypes {
                 return reverseAlphanumeric(left, right);
         }
 
-        return false;
+        return 0;
     }
 
-    private boolean alphanumeric(ItemStack left, ItemStack right) {
+    private int alphanumeric(ItemStack left, ItemStack right) {
         if (left.isEmpty() && !right.isEmpty()) {
-            return true;
+            return 0;
         } else if (right.isEmpty() && !left.isEmpty()) {
-            return false;
+            return -1;
         }
 
-        return (left.getName().getString().compareTo(right.getName().getString())) > 0;
+        return (left.getName().getString().compareTo(right.getName().getString()));
     }
 
-    private boolean reverseAlphanumeric(ItemStack left, ItemStack right) {
+    private int reverseAlphanumeric(ItemStack left, ItemStack right) {
         if (left.isEmpty() && !right.isEmpty()) {
-            return true;
+            return 0;
         } else if (right.isEmpty() && !left.isEmpty()) {
-            return false;
+            return -1;
         }
 
-        return (left.getName().getString().compareTo(right.getName().getString())) < 0;
+        return (left.getName().getString().compareTo(right.getName().getString())) * -1;
     }
 }
