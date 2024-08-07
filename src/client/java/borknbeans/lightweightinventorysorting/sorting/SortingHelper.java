@@ -1,5 +1,6 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
+import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.SortableSlot;
 import borknbeans.lightweightinventorysorting.SortableSlotComparator;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
@@ -21,12 +22,15 @@ public class SortingHelper {
         DefaultedList<Slot> slots = client.player.currentScreenHandler.slots;
         List<SortableSlot> sortableSlots = new ArrayList<>();
 
+        String insightLog = "Starting sort...";
         for (int i = startIndex; i <= endIndex; i++) {
             ItemStack stack = slots.get(i).getStack();
             if (stack.isEmpty()) { continue; }
 
+            insightLog += "\n" + i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString();
             sortableSlots.add(new SortableSlot(i, stack));
         }
+        LightweightInventorySorting.LOGGER.info(insightLog);
 
         sortableSlots.sort(new SortableSlotComparator());
 
@@ -61,9 +65,10 @@ public class SortingHelper {
             for (int j = index; j >= 0; j--) {
                 ItemStack stackPrev = sortedSlots.get(j).getStack();
 
-                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks dont match
-                if ((hand.item != null && !stackPrev.isOf(hand.item) || (!stack.isOf(stackPrev.getItem()) && !hand.exists))) {
-                    if (hand.exists) {
+                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks don't match
+                // THEN don't combine
+                if ((hand.stack != null && ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || (!ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists))) {
+                    if (hand.exists) { // Place item in hand back down
                         move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
                         hand.Reset();
                     }
@@ -85,7 +90,7 @@ public class SortingHelper {
                     move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // Store hand item information
                     hand.exists = true;
-                    hand.item = stackPrev.getItem();
+                    hand.stack = stackPrev;
                     hand.count = combinedCount - stackPrev.getMaxCount();
                 }
             }
@@ -150,7 +155,7 @@ public class SortingHelper {
 
         if (!destStack.isEmpty()) {
             hand.exists = true;
-            hand.item = destStack.getItem();
+            hand.stack = destStack;
             hand.count = destStack.getCount();
 
             // Get item in slot dest
@@ -176,7 +181,7 @@ public class SortingHelper {
 
 class HandHelper {
     public boolean exists;
-    public Item item;
+    public ItemStack stack;
     public int count;
 
     public HandHelper() {
@@ -185,7 +190,7 @@ class HandHelper {
 
     public void Reset() {
         exists = false;
-        item = null;
+        stack = null;
         count = 0;
     }
 }
