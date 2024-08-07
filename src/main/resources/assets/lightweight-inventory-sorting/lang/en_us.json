@@ -1,4 +1,24 @@
 {
-  "key.lightweightinventorysorting.sort": "Sort Current Container",
-  "category.lightweightinventorysorting.lightweightinventorysorting": "Lightweight Inventory Sorting"
+  "key.lightweight-inventory-sorting.sort": "Sort Current Container",
+
+  "category.lightweight-inventory-sorting.title": "Lightweight Inventory Sorting",
+
+  "category.lightweight-inventory-sorting.general": "General Settings",
+
+  "category.lightweight-inventory-sorting.sort-options": "Sorting Options",
+  "category.lightweight-inventory-sorting.sort-type": "Sorting Type",
+  "category.lightweight-inventory-sorting.sort-type-tooltip": "Alphanumeric (A-Z) or Reverse Alphanumeric (Z-A)",
+  "category.lightweight-inventory-sorting.sort-delay": "Sorting Delay",
+  "category.lightweight-inventory-sorting.sort-delay-tooltip": "Increase delay between sorting steps (useful for multiplayer server errors)",
+
+  "category.lightweight-inventory-sorting.button-options": "Button Options",
+  "category.lightweight-inventory-sorting.button-size": "Button Size",
+  "category.lightweight-inventory-sorting.inventory-x": "Inventory X Offset",
+  "category.lightweight-inventory-sorting.inventory-x-tooltip": "Positive moves right, negative moves left",
+  "category.lightweight-inventory-sorting.inventory-y": "Inventory Y Offset",
+  "category.lightweight-inventory-sorting.inventory-y-tooltip": "Positive moves down, negative moves up",
+  "category.lightweight-inventory-sorting.container-x": "Container X Offset",
+  "category.lightweight-inventory-sorting.container-x-tooltip": "Positive moves right, negative moves left",
+  "category.lightweight-inventory-sorting.container-y": "Container Y Offset",
+  "category.lightweight-inventory-sorting.container-y-tooltip": "Positive moves down, negative moves up"
 }

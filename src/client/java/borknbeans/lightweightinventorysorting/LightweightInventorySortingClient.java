@@ -21,10 +21,10 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
 
 	private void registerKeyBindings() {
 		sortKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.lightweightinventorysorting.sort",
+				"key.lightweight-inventory-sorting.sort",
 				InputUtil.Type.KEYSYM,
 				GLFW.GLFW_KEY_R,
-				"category.lightweightinventorysorting.lightweightinventorysorting"
+				"category.lightweight-inventory-sorting.title"
 		));
 	}
 }
