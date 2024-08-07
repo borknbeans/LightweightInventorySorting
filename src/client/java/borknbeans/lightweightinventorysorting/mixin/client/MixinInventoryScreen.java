@@ -1,6 +1,7 @@
 package borknbeans.lightweightinventorysorting.mixin.client;
 
 import borknbeans.lightweightinventorysorting.ContainerSortButton;
+import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -13,12 +14,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(InventoryScreen.class)
 public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHandler> {
 
     @Unique
     private ContainerSortButton inventorySortButton;
+
 
     public MixinInventoryScreen(PlayerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -42,6 +45,13 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
             setButtonCoordinates();
 
             inventorySortButton.render(context, mouseX, mouseY, delta);
+        }
+    }
+
+    @Inject(method="keyPressed", at=@At("RETURN"))
+    public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
+            inventorySortButton.onClick(0f, 0f); // Simulate a click
         }
     }
 
