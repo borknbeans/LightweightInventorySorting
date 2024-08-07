@@ -1,4 +1,4 @@
-package borknbeans.lightweightinventorysorting;
+package borknbeans.lightweightinventorysorting.sorting;
 
 import java.util.Comparator;
 

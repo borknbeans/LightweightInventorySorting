@@ -1,11 +1,8 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
-import borknbeans.lightweightinventorysorting.SortableSlot;
-import borknbeans.lightweightinventorysorting.SortableSlotComparator;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -176,21 +173,5 @@ public class SortingHelper {
         } else {
             hand.Reset();
         }
-    }
-}
-
-class HandHelper {
-    public boolean exists;
-    public ItemStack stack;
-    public int count;
-
-    public HandHelper() {
-        Reset();
-    }
-
-    public void Reset() {
-        exists = false;
-        stack = null;
-        count = 0;
     }
 }

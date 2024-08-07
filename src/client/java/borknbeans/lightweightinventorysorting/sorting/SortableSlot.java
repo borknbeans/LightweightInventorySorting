@@ -1,4 +1,4 @@
-package borknbeans.lightweightinventorysorting;
+package borknbeans.lightweightinventorysorting.sorting;
 
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.item.ItemStack;
