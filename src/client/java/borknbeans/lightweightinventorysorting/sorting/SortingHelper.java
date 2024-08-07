@@ -1,5 +1,6 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
+import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.SortableSlot;
 import borknbeans.lightweightinventorysorting.SortableSlotComparator;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
@@ -21,12 +22,15 @@ public class SortingHelper {
         DefaultedList<Slot> slots = client.player.currentScreenHandler.slots;
         List<SortableSlot> sortableSlots = new ArrayList<>();
 
+        String insightLog = "Starting sort...";
         for (int i = startIndex; i <= endIndex; i++) {
             ItemStack stack = slots.get(i).getStack();
             if (stack.isEmpty()) { continue; }
 
+            insightLog += "\n" + i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString();
             sortableSlots.add(new SortableSlot(i, stack));
         }
+        LightweightInventorySorting.LOGGER.info(insightLog);
 
         sortableSlots.sort(new SortableSlotComparator());
 
