@@ -28,8 +28,8 @@ public class LightweightInventorySortingConfig {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ConfigData data = GSON.fromJson(reader, ConfigData.class);
-                sortType = data.sortType;
-                buttonSize = data.buttonSize;
+                sortType = data.sortType == null ? SortTypes.ALPHANUMERIC : data.sortType;
+                buttonSize = data.buttonSize == null ? ButtonSize.MEDIUM : data.buttonSize;
                 xOffsetInventory = data.xOffsetInventory;
                 yOffsetInventory = data.yOffsetInventory;
                 xOffsetContainer = data.xOffsetContainer;
