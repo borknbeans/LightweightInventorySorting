@@ -92,7 +92,7 @@ public class SortingHelper {
                     stackCopy.setCount(combinedCount - stackPrev.getMaxCount());
 
                     hand.stack = stackCopy;
-                    hand.count = stackCopy.getCount();
+                    hand.count = stackCopy.getCount(); // TODO: We can remove this count and now just use the stack count as it should be accurate
                 }
             }
 
