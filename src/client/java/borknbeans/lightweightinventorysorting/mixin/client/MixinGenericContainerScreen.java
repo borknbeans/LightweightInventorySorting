@@ -1,6 +1,7 @@
 package borknbeans.lightweightinventorysorting.mixin.client;
 
 import borknbeans.lightweightinventorysorting.ContainerSortButton;
+import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.gui.DrawContext;
@@ -52,5 +53,14 @@ public abstract class MixinGenericContainerScreen extends HandledScreen<GenericC
         }
 
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
+            containerSortButton.onClick(0f, 0f); // Simulate a click
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

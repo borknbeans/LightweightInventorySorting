@@ -53,4 +53,13 @@ public abstract class MixinShulkerBoxScreen extends HandledScreen<ShulkerBoxScre
 
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
+            containerSortButton.onClick(0f, 0f); // Simulate a click
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 }

@@ -59,4 +59,13 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
         inventorySortButton.setX(this.x + this.backgroundWidth - 20 + LightweightInventorySortingConfig.xOffsetInventory);
         inventorySortButton.setY(this.height / 2 - 15 + LightweightInventorySortingConfig.yOffsetInventory);
     }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
+            inventorySortButton.onClick(0f, 0f); // Simulate a click
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 }
