@@ -16,6 +16,8 @@ public class SortingHelper {
     public static void sortInventory(MinecraftClient client, int startIndex, int endIndex) {
         if (client.player == null) return;
 
+        int syncId = client.player.currentScreenHandler.syncId;
+
         DefaultedList<Slot> slots = client.player.currentScreenHandler.slots;
         List<SortableSlot> sortableSlots = new ArrayList<>();
 
@@ -27,12 +29,24 @@ public class SortingHelper {
             insightLog += "\n" + i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString();
             sortableSlots.add(new SortableSlot(i, stack));
         }
+
+        ItemStack mouseStack = stackAttachedToMouse(client);
+        if (mouseStack != null) {
+            insightLog += "\n" + "MOUSE: " + mouseStack.getName().getString() + ", " + mouseStack.getCount() + "/" + mouseStack.getMaxCount() + ", " + mouseStack.getItem().getName().getString();
+            int index = findEmptySlotIndex(slots, startIndex, endIndex);
+
+            if (index == -1) {
+                LightweightInventorySorting.LOGGER.info("An error occurred while attempting to sort items in slots with an item already selected!");
+                return;
+            }
+
+            move(client, syncId, -1, index, new HandHelper());
+            sortableSlots.add(new SortableSlot(index, mouseStack));
+        }
+
         LightweightInventorySorting.LOGGER.info(insightLog);
 
         sortableSlots.sort(new SortableSlotComparator());
-
-        int syncId = client.player.currentScreenHandler.syncId;
-
 
         new Thread(() -> {
             combineLikeItems(client, syncId, slots, sortableSlots, startIndex, endIndex);
@@ -183,5 +197,23 @@ public class SortingHelper {
         } else {
             hand.Reset();
         }
+    }
+
+    private static ItemStack stackAttachedToMouse(MinecraftClient client) {
+        if (client.player == null) {
+            return null;
+        }
+
+        ItemStack cursorStack = client.player.currentScreenHandler.getCursorStack();
+        return cursorStack.isEmpty() ? null : cursorStack;
+    }
+
+    private static int findEmptySlotIndex(DefaultedList<Slot> slots, int startIndex, int endIndex) {
+        for (int i = startIndex; i <= endIndex; i++) {
+            ItemStack stack = slots.get(i).getStack();
+            if (stack.isEmpty()) { return i; }
+        }
+
+        return -1;
     }
 }
