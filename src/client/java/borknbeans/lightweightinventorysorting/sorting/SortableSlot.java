@@ -21,8 +21,16 @@ public class SortableSlot implements Comparable<SortableSlot> {
         return index;
     }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public ItemStack getStack() {
         return stack;
+    }
+
+    public void setStack(ItemStack stack) {
+        this.stack = stack;
     }
 
     @Override

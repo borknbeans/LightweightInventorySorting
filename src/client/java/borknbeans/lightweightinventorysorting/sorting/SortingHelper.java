@@ -87,13 +87,18 @@ public class SortingHelper {
                     move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // Store hand item information
                     hand.exists = true;
-                    hand.stack = stackPrev;
-                    hand.count = combinedCount - stackPrev.getMaxCount();
+
+                    ItemStack stackCopy = stackPrev.copy();
+                    stackCopy.setCount(combinedCount - stackPrev.getMaxCount());
+
+                    hand.stack = stackCopy;
+                    hand.count = stackCopy.getCount();
                 }
             }
 
             if (hand.exists) {
                 int emptySlot = -1;
+
                 for (int j = startIndex; j < endIndex; j++) {
                     if (slots.get(j).getStack().isEmpty()) {
                         emptySlot = j;
@@ -103,6 +108,11 @@ public class SortingHelper {
 
                 if (emptySlot != -1) {
                     move(client, syncId, 0, emptySlot, hand);
+                    if (sortedSlots.get(i).getIndex() != emptySlot) {
+                        sortedSlots.get(i).setIndex(emptySlot); // placing hand item here
+                        hand.stack.setCount(hand.count);
+                        sortedSlots.get(i).setStack(hand.stack.copy());
+                    }
                     hand.Reset();
                 } else {
                     System.out.println("Something went wrong combining items");
