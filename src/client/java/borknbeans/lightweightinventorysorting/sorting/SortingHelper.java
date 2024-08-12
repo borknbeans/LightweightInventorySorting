@@ -78,9 +78,11 @@ public class SortingHelper {
 
                 // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks don't match
                 // THEN don't combine
-                if ((hand.stack != null && ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || (!ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists))) {
+                if ((hand.stack != null && !ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || (!ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists))) {
                     if (hand.exists) { // Place item in hand back down
                         move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
+                        sortedSlots.get(i).setStack(hand.stack.copy());
+
                         hand.Reset();
                     }
 
