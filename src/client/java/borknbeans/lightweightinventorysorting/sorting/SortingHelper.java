@@ -21,18 +21,18 @@ public class SortingHelper {
         DefaultedList<Slot> slots = client.player.currentScreenHandler.slots;
         List<SortableSlot> sortableSlots = new ArrayList<>();
 
-        String insightLog = "Starting sort...";
+        LightweightInventorySorting.LOGGER.info("Collecting sort details...");
         for (int i = startIndex; i <= endIndex; i++) {
             ItemStack stack = slots.get(i).getStack();
             if (stack.isEmpty()) { continue; }
 
-            insightLog += "\n" + i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString();
+            LightweightInventorySorting.LOGGER.info(i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString());
             sortableSlots.add(new SortableSlot(i, stack));
         }
 
         ItemStack mouseStack = stackAttachedToMouse(client);
         if (mouseStack != null) {
-            insightLog += "\n" + "MOUSE: " + mouseStack.getName().getString() + ", " + mouseStack.getCount() + "/" + mouseStack.getMaxCount() + ", " + mouseStack.getItem().getName().getString();
+            LightweightInventorySorting.LOGGER.info("MOUSE: " + mouseStack.getName().getString() + ", " + mouseStack.getCount() + "/" + mouseStack.getMaxCount() + ", " + mouseStack.getItem().getName().getString());
             int index = findEmptySlotIndex(slots, startIndex, endIndex);
 
             if (index == -1) {
@@ -44,7 +44,7 @@ public class SortingHelper {
             sortableSlots.add(new SortableSlot(index, mouseStack));
         }
 
-        LightweightInventorySorting.LOGGER.info(insightLog);
+        LightweightInventorySorting.LOGGER.info("Sorting starting now...");
 
         sortableSlots.sort(new SortableSlotComparator());
 
@@ -97,6 +97,11 @@ public class SortingHelper {
                     move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // remove item from sortedSlots
                     sortedSlots.remove(i);
+
+                    if (hand.exists) {
+                        hand.Reset();
+                    }
+
                     break;
                 } else {
                     // Move with remainder
