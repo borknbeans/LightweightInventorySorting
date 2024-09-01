@@ -7,7 +7,7 @@
 
   "category.lightweight-inventory-sorting.sort-options": "Sorting Options",
   "category.lightweight-inventory-sorting.sort-type": "Sorting Type",
-  "category.lightweight-inventory-sorting.sort-type-tooltip": "Alphanumeric (A-Z) or Reverse Alphanumeric (Z-A)",
+  "category.lightweight-inventory-sorting.sort-type-tooltip": "Alphanumeric (A-Z), Reverse Alphanumeric (Z-A), or by Raw IDs",
   "category.lightweight-inventory-sorting.sort-delay": "Sorting Delay",
   "category.lightweight-inventory-sorting.sort-delay-tooltip": "Increase delay between sorting steps (useful for multiplayer server errors)",
 
