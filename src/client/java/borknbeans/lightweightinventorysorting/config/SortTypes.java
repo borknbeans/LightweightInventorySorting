@@ -1,6 +1,5 @@
 package borknbeans.lightweightinventorysorting.config;
 
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
 public enum SortTypes {

@@ -1,10 +1,8 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
-import borknbeans.lightweightinventorysorting.SortableSlot;
-import borknbeans.lightweightinventorysorting.SortableSlotComparator;
+import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -18,20 +16,37 @@ public class SortingHelper {
     public static void sortInventory(MinecraftClient client, int startIndex, int endIndex) {
         if (client.player == null) return;
 
+        int syncId = client.player.currentScreenHandler.syncId;
+
         DefaultedList<Slot> slots = client.player.currentScreenHandler.slots;
         List<SortableSlot> sortableSlots = new ArrayList<>();
 
+        LightweightInventorySorting.LOGGER.info("Collecting sort details...");
         for (int i = startIndex; i <= endIndex; i++) {
             ItemStack stack = slots.get(i).getStack();
             if (stack.isEmpty()) { continue; }
 
+            LightweightInventorySorting.LOGGER.info(i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString());
             sortableSlots.add(new SortableSlot(i, stack));
         }
 
+        ItemStack mouseStack = stackAttachedToMouse(client);
+        if (mouseStack != null) {
+            LightweightInventorySorting.LOGGER.info("MOUSE: " + mouseStack.getName().getString() + ", " + mouseStack.getCount() + "/" + mouseStack.getMaxCount() + ", " + mouseStack.getItem().getName().getString());
+            int index = findEmptySlotIndex(slots, startIndex, endIndex);
+
+            if (index == -1) {
+                LightweightInventorySorting.LOGGER.info("An error occurred while attempting to sort items in slots with an item already selected!");
+                return;
+            }
+
+            move(client, syncId, -1, index, new HandHelper());
+            sortableSlots.add(new SortableSlot(index, mouseStack));
+        }
+
+        LightweightInventorySorting.LOGGER.info("Sorting starting now...");
+
         sortableSlots.sort(new SortableSlotComparator());
-
-        int syncId = client.player.currentScreenHandler.syncId;
-
 
         new Thread(() -> {
             combineLikeItems(client, syncId, slots, sortableSlots, startIndex, endIndex);
@@ -61,10 +76,13 @@ public class SortingHelper {
             for (int j = index; j >= 0; j--) {
                 ItemStack stackPrev = sortedSlots.get(j).getStack();
 
-                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks dont match
-                if ((hand.item != null && !stackPrev.isOf(hand.item) || (!stack.isOf(stackPrev.getItem()) && !hand.exists))) {
-                    if (hand.exists) {
+                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks don't match
+                // THEN don't combine
+                if ((hand.stack != null && !ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || (!ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists))) {
+                    if (hand.exists) { // Place item in hand back down
                         move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
+                        sortedSlots.get(i).setStack(hand.stack.copy());
+
                         hand.Reset();
                     }
 
@@ -79,19 +97,29 @@ public class SortingHelper {
                     move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // remove item from sortedSlots
                     sortedSlots.remove(i);
+
+                    if (hand.exists) {
+                        hand.Reset();
+                    }
+
                     break;
                 } else {
                     // Move with remainder
                     move(client, syncId, sortedSlots.get(i).getIndex(), sortedSlots.get(j).getIndex(), hand);
                     // Store hand item information
                     hand.exists = true;
-                    hand.item = stackPrev.getItem();
-                    hand.count = combinedCount - stackPrev.getMaxCount();
+
+                    ItemStack stackCopy = stackPrev.copy();
+                    stackCopy.setCount(combinedCount - stackPrev.getMaxCount());
+
+                    hand.stack = stackCopy;
+                    hand.count = stackCopy.getCount(); // TODO: We can remove this count and now just use the stack count as it should be accurate
                 }
             }
 
             if (hand.exists) {
                 int emptySlot = -1;
+
                 for (int j = startIndex; j < endIndex; j++) {
                     if (slots.get(j).getStack().isEmpty()) {
                         emptySlot = j;
@@ -101,6 +129,11 @@ public class SortingHelper {
 
                 if (emptySlot != -1) {
                     move(client, syncId, 0, emptySlot, hand);
+                    if (sortedSlots.get(i).getIndex() != emptySlot) {
+                        sortedSlots.get(i).setIndex(emptySlot); // placing hand item here
+                        hand.stack.setCount(hand.count);
+                        sortedSlots.get(i).setStack(hand.stack.copy());
+                    }
                     hand.Reset();
                 } else {
                     System.out.println("Something went wrong combining items");
@@ -150,7 +183,7 @@ public class SortingHelper {
 
         if (!destStack.isEmpty()) {
             hand.exists = true;
-            hand.item = destStack.getItem();
+            hand.stack = destStack;
             hand.count = destStack.getCount();
 
             // Get item in slot dest
@@ -172,20 +205,22 @@ public class SortingHelper {
             hand.Reset();
         }
     }
-}
 
-class HandHelper {
-    public boolean exists;
-    public Item item;
-    public int count;
+    private static ItemStack stackAttachedToMouse(MinecraftClient client) {
+        if (client.player == null) {
+            return null;
+        }
 
-    public HandHelper() {
-        Reset();
+        ItemStack cursorStack = client.player.currentScreenHandler.getCursorStack();
+        return cursorStack.isEmpty() ? null : cursorStack;
     }
 
-    public void Reset() {
-        exists = false;
-        item = null;
-        count = 0;
+    private static int findEmptySlotIndex(DefaultedList<Slot> slots, int startIndex, int endIndex) {
+        for (int i = startIndex; i <= endIndex; i++) {
+            ItemStack stack = slots.get(i).getStack();
+            if (stack.isEmpty()) { return i; }
+        }
+
+        return -1;
     }
 }

@@ -1,4 +1,4 @@
-package borknbeans.lightweightinventorysorting;
+package borknbeans.lightweightinventorysorting.sorting;
 
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.item.ItemStack;
@@ -21,13 +21,29 @@ public class SortableSlot implements Comparable<SortableSlot> {
         return index;
     }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public ItemStack getStack() {
         return stack;
     }
 
+    public void setStack(ItemStack stack) {
+        this.stack = stack;
+    }
+
     @Override
     public int compareTo(@NotNull SortableSlot o) {
+        // Compare the names of the two stacks
         int result = LightweightInventorySortingConfig.sortType.compare(this.getStack(), o.getStack());
-        return result != 0 ? result : (o.getStack().getCount() - this.getStack().getCount());
+
+        if (result != 0) { // Items have different names
+            return result;
+        } else if (!ItemStack.areItemsAndComponentsEqual(this.getStack(), o.getStack())) { // Items have the same name, but different components or items
+            return 0;
+        } else { // Items have same name, are same item, and have same components
+            return o.getStack().getCount() - this.getStack().getCount();
+        }
     }
 }
