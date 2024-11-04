@@ -1,0 +1,24 @@
+{
+  "key.lightweight-inventory-sorting.sort": "Organizar contêiner atual",
+
+  "category.lightweight-inventory-sorting.title": "Organização leve de inventário",
+
+  "category.lightweight-inventory-sorting.general": "Configurações gerais",
+
+  "category.lightweight-inventory-sorting.sort-options": "Opções de organização",
+  "category.lightweight-inventory-sorting.sort-type": "Tipo de organização",
+  "category.lightweight-inventory-sorting.sort-type-tooltip": "Alfanumérico (A-Z) ou Alfanumérico reverso (Z-A)",
+  "category.lightweight-inventory-sorting.sort-delay": "Atraso de organização",
+  "category.lightweight-inventory-sorting.sort-delay-tooltip": "Aumenta o atraso entre etapas de organização (útil para erros em servidores multiplayer)",
+
+  "category.lightweight-inventory-sorting.button-options": "Opções de botão",
+  "category.lightweight-inventory-sorting.button-size": "Tamanho do botão",
+  "category.lightweight-inventory-sorting.inventory-x": "Deslocamento X do inventário",
+  "category.lightweight-inventory-sorting.inventory-x-tooltip": "Valor positivo move para a direita, valor negativo move para a esquerda",
+  "category.lightweight-inventory-sorting.inventory-y": "Deslocamento Y do inventário",
+  "category.lightweight-inventory-sorting.inventory-y-tooltip": "Valor positivo move para baixo, valor negativo move para cima",
+  "category.lightweight-inventory-sorting.container-x": "Deslocamento X do contêiner",
+  "category.lightweight-inventory-sorting.container-x-tooltip": "Valor positivo move para a direita, valor negativo move para a esquerda",
+  "category.lightweight-inventory-sorting.container-y": "Deslocamento Y do contêiner",
+  "category.lightweight-inventory-sorting.container-y-tooltip": "Valor positivo move para baixo, valor negativo move para cima"
+}
