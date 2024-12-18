@@ -1,0 +1,24 @@
+{
+  "key.lightweight-inventory-sorting.sort": "Geçerli Konteyneri Sırala",
+
+  "category.lightweight-inventory-sorting.title": "Lightweight Inventory Sorting",
+
+  "category.lightweight-inventory-sorting.general": "Genel Ayarlar",
+
+  "category.lightweight-inventory-sorting.sort-options": "Sıralama Seçenekleri",
+  "category.lightweight-inventory-sorting.sort-type": "Sıralama Türü",
+  "category.lightweight-inventory-sorting.sort-type-tooltip": "Alfanümerik (A-Z), Ters Alfanümerik (Z-A) veya Ham ID'lere göre",
+  "category.lightweight-inventory-sorting.sort-delay": "Sıralama Gecikmesi",
+  "category.lightweight-inventory-sorting.sort-delay-tooltip": "Sıralama adımları arasındaki gecikmeyi artırın (çok oyunculu sunucu hataları için kullanışlıdır)",
+
+  "category.lightweight-inventory-sorting.button-options": "Düğme Seçenekleri",
+  "category.lightweight-inventory-sorting.button-size": "Düğme Boyutu",
+  "category.lightweight-inventory-sorting.inventory-x": "Envanter X Ofset",
+  "category.lightweight-inventory-sorting.inventory-x-tooltip": "Pozitif sağa götürür, negatif sola götürür",
+  "category.lightweight-inventory-sorting.inventory-y": "Envanter Y Ofseti",
+  "category.lightweight-inventory-sorting.inventory-y-tooltip": "Pozitif aşağı götürür, negatif yukarı götürür",
+  "category.lightweight-inventory-sorting.container-x": "Konteyner X Ofseti",
+  "category.lightweight-inventory-sorting.container-x-tooltip": "Pozitif sağa götürür, negatif sola götürür",
+  "category.lightweight-inventory-sorting.container-y": "Konteyner Y Ofseti",
+  "category.lightweight-inventory-sorting.container-y-tooltip": "Pozitif aşağı götürür, negatif yukarı götürür"
+}
