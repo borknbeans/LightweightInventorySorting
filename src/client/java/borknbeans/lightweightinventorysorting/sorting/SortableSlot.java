@@ -40,7 +40,7 @@ public class SortableSlot implements Comparable<SortableSlot> {
 
         if (result != 0) { // Items have different names
             return result;
-        } else if (!ItemStack.areItemsAndComponentsEqual(this.getStack(), o.getStack())) { // Items have the same name, but different components or items
+        } else if (!ItemStack.areItemsEqual(this.getStack(), o.getStack())) { // Items have the same name, but different components or items
             return 0;
         } else { // Items have same name, are same item, and have same components
             return o.getStack().getCount() - this.getStack().getCount();

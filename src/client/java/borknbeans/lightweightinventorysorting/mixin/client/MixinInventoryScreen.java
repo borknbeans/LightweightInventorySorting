@@ -48,25 +48,15 @@ public abstract class MixinInventoryScreen extends HandledScreen<PlayerScreenHan
         }
     }
 
-    // This injection is failing now in 1.21.2
+    // This injection fails in 1.20.1
     /*
-    @Inject(method = "keyPressed", at = @At("RETURN"))
-    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method="keyPressed", at=@At("RETURN"))
+    public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
         if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
             inventorySortButton.onClick(0f, 0f); // Simulate a click
         }
-        return cir.getReturnValue();
     }
      */
-
-    // This override is NOT an ideal solution as it could lead to conflicts with other mods
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
-            inventorySortButton.onClick(0f, 0f); // Simulate a click
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
 
     private void setButtonCoordinates() {
         inventorySortButton.setX(this.x + this.backgroundWidth - 20 + LightweightInventorySortingConfig.xOffsetInventory);
