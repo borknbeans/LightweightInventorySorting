@@ -3,6 +3,7 @@ package borknbeans.lightweightinventorysorting.sorting;
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.LightweightInventorySortingConfig;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.BundleItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -24,7 +25,7 @@ public class SortingHelper {
         LightweightInventorySorting.LOGGER.info("Collecting sort details...");
         for (int i = startIndex; i <= endIndex; i++) {
             ItemStack stack = slots.get(i).getStack();
-            if (stack.isEmpty()) { continue; }
+            if (stack.isEmpty() || ignoredItem(stack)) { continue; }
 
             LightweightInventorySorting.LOGGER.info(i + ": " + stack.getName().getString() + ", " + stack.getCount() + "/" + stack.getMaxCount() + ", " + stack.getItem().getName().getString());
             sortableSlots.add(new SortableSlot(i, stack));
@@ -68,7 +69,7 @@ public class SortingHelper {
         for (int i = sortedSlots.size() - 1; i >= 1; i--) {
             ItemStack stack = sortedSlots.get(i).getStack();
 
-            if (stack.getCount() == stack.getMaxCount()) { continue; }
+            if (stack.getCount() == stack.getMaxCount() || ignoredItem(stack)) { continue; }
 
             int index = i - 1;
 
@@ -76,9 +77,9 @@ public class SortingHelper {
             for (int j = index; j >= 0; j--) {
                 ItemStack stackPrev = sortedSlots.get(j).getStack();
 
-                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks don't match
+                // If we are holding something and the prev does not match OR if our hand is empty and the two checked stacks don't match OR the stack should get ignored
                 // THEN don't combine
-                if ((hand.stack != null && !ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || (!ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists))) {
+                if (hand.stack != null && !ItemStack.areItemsAndComponentsEqual(stackPrev, hand.stack) || !ItemStack.areItemsAndComponentsEqual(stack, stackPrev) && !hand.exists || ignoredItem(stackPrev)) {
                     if (hand.exists) { // Place item in hand back down
                         move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
                         sortedSlots.get(i).setStack(hand.stack.copy());
@@ -119,14 +120,7 @@ public class SortingHelper {
             }
 
             if (hand.exists) {
-                int emptySlot = -1;
-
-                for (int j = startIndex; j < endIndex; j++) {
-                    if (slots.get(j).getStack().isEmpty()) {
-                        emptySlot = j;
-                        break;
-                    }
-                }
+                int emptySlot = findEmptySlotIndex(slots, startIndex, endIndex);
 
                 if (emptySlot != -1) {
                     move(client, syncId, 0, emptySlot, hand);
@@ -160,21 +154,24 @@ public class SortingHelper {
     private static void sortItems(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int startIndex) {
         HandHelper hand = new HandHelper();
 
-        for (int i = 0; i < sortedSlots.size(); i++) {
-            if (sortedSlots.get(i).sorted) { continue; }
+        List<Integer> ignoredIndices = slots.stream().filter(slot -> ignoredItem(slot.getStack())).map(slot -> slot.id).toList();
 
-            sortItem(client, syncId, slots, sortedSlots, i, startIndex, hand);
+        for (int i = 0; i < sortedSlots.size(); i++) {
+            SortableSlot slot = sortedSlots.get(i);
+            if (slot.sorted || ignoredItem(slot.getStack())) { continue; }
+
+            sortItem(client, syncId, slots, sortedSlots, i, startIndex, hand, ignoredIndices);
         }
     }
 
-    private static void sortItem(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int index, int startIndex, HandHelper hand) {
+    private static void sortItem(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int index, int startIndex, HandHelper hand, List<Integer> ignoredIndices) {
         try {
             Thread.sleep(LightweightInventorySortingConfig.sortDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        int dest = startIndex + index;
+        int dest = getShiftedDest(startIndex + index, ignoredIndices);
 
         if (dest == sortedSlots.get(index).getIndex()) {
             sortedSlots.get(index).sorted = true;
@@ -205,7 +202,7 @@ public class SortingHelper {
                 return;
             }
 
-            sortItem(client, syncId, slots, sortedSlots, sortedSlotListIndex, startIndex, hand);
+            sortItem(client, syncId, slots, sortedSlots, sortedSlotListIndex, startIndex, hand, ignoredIndices);
         } else {
             hand.reset();
         }
@@ -238,5 +235,9 @@ public class SortingHelper {
         }
 
         return -1;
+    }
+
+    private static boolean ignoredItem(ItemStack stack) {
+        return stack.getItem() instanceof BundleItem;
     }
 }
