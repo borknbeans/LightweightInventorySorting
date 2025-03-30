@@ -8,10 +8,10 @@ public class HandHelper {
     public int count;
 
     public HandHelper() {
-        Reset();
+        reset();
     }
 
-    public void Reset() {
+    public void reset() {
         exists = false;
         stack = null;
         count = 0;

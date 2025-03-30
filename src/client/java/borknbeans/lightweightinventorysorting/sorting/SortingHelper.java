@@ -46,12 +46,12 @@ public class SortingHelper {
 
         LightweightInventorySorting.LOGGER.info("Sorting starting now...");
 
-        sortableSlots.sort(new SortableSlotComparator());
+        sortableSlots.sort(SortableSlot::compareTo);
 
         new Thread(() -> {
             combineLikeItems(client, syncId, slots, sortableSlots, startIndex, endIndex);
 
-            sortableSlots.sort(new SortableSlotComparator());
+            sortableSlots.sort(SortableSlot::compareTo);
 
             sortItems(client, syncId, slots, sortableSlots, startIndex);
         }).start();
@@ -83,11 +83,12 @@ public class SortingHelper {
                         move(client, syncId, 0, sortedSlots.get(i).getIndex(), hand);
                         sortedSlots.get(i).setStack(hand.stack.copy());
 
-                        hand.Reset();
+                        hand.reset();
                     }
 
                     break;
                 }
+
                 if (stackPrev.getCount() == stackPrev.getMaxCount()) { continue; }
 
                 int combinedCount = hand.exists ? hand.count + stackPrev.getCount() : stack.getCount() + stackPrev.getCount();
@@ -99,7 +100,7 @@ public class SortingHelper {
                     sortedSlots.remove(i);
 
                     if (hand.exists) {
-                        hand.Reset();
+                        hand.reset();
                     }
 
                     break;
@@ -134,15 +135,17 @@ public class SortingHelper {
                         hand.stack.setCount(hand.count);
                         sortedSlots.get(i).setStack(hand.stack.copy());
                     }
-                    hand.Reset();
+                    hand.reset();
                 } else {
-                    System.out.println("Something went wrong combining items");
+                    LightweightInventorySorting.LOGGER.error("Something went wrong combining items");
                 }
             }
 
             try {
                 Thread.sleep(LightweightInventorySortingConfig.sortDelay);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -167,7 +170,9 @@ public class SortingHelper {
     private static void sortItem(MinecraftClient client, int syncId, DefaultedList<Slot> slots, List<SortableSlot> sortedSlots, int index, int startIndex, HandHelper hand) {
         try {
             Thread.sleep(LightweightInventorySortingConfig.sortDelay);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         int dest = startIndex + index;
 
@@ -196,14 +201,25 @@ public class SortingHelper {
             }
 
             if (sortedSlotListIndex == -1) {
-                System.out.println("Something went wrong with sorting the items.");
+                LightweightInventorySorting.LOGGER.error("Something went wrong with sorting the items.");
                 return;
             }
 
             sortItem(client, syncId, slots, sortedSlots, sortedSlotListIndex, startIndex, hand);
         } else {
-            hand.Reset();
+            hand.reset();
         }
+    }
+
+    /**
+     * Returns a shifted destination, skipping ignored slots
+     */
+    private static int getShiftedDest(int dest, List<Integer> ignoredIndices) {
+        int result = dest;
+        for (int index : ignoredIndices) {
+            if (index <= result) result++;
+        }
+        return result;
     }
 
     private static ItemStack stackAttachedToMouse(MinecraftClient client) {
