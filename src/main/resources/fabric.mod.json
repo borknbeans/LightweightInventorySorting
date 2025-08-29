@@ -39,7 +39,11 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
+<<<<<<< Updated upstream
 		"minecraft": "~1.21.6",
+=======
+		"minecraft": "~1.21.7",
+>>>>>>> Stashed changes
 		"java": ">=21",
 		"fabric-api": "*"
 	},
