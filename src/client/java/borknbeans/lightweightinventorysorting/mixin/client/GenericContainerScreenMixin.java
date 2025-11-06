@@ -4,9 +4,12 @@ package borknbeans.lightweightinventorysorting.mixin.client;
 import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
 import borknbeans.lightweightinventorysorting.config.Config;
 import borknbeans.lightweightinventorysorting.sorting.SortButton;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.text.Text;
@@ -47,20 +50,22 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
-            sortButton.onClick(0f, 0f); // Simulate a click
+    public boolean keyPressed(KeyInput keyInput) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyInput)) {
+            sortButton.onPress(new MouseInput(0,0));
+            return true;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(keyInput);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
-            sortButton.onClick(0f, 0f); // Simulate a click
+    public boolean mouseClicked(Click click, boolean doubleClick) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(click)) {
+            sortButton.simulateClick(click); // Simulate a click
+            return true;
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(click, doubleClick);
     }
 }

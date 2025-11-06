@@ -1,24 +1,22 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class SortButton extends ClickableWidget {
+public class SortButton extends PressableWidget {
 
-    private Identifier buttonTexture;
-    private Identifier buttonHoverTexture;
+    private final Identifier buttonTexture;
+    private final Identifier buttonHoverTexture;
 
-    private int sortStartIndex, sortEndIndex;
+    private final int sortStartIndex, sortEndIndex;
 
     public SortButton(int x, int y, int width, int height, Text message, int startIndex, int endIndex) {
         super(x, y, width, height, message);
@@ -45,7 +43,7 @@ public class SortButton extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onPress(net.minecraft.client.input.AbstractInput input) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (client.player != null) {
@@ -54,6 +52,12 @@ public class SortButton extends ClickableWidget {
         } else {
             LightweightInventorySorting.LOGGER.error("Player is not available.");
         }
+    }
+
+    public void simulateClick(Click click){
+        // For simplicity, ignore coordinates and button type, just trigger onPress
+        // Convert Click → AbstractInput for onPress
+        this.onPress(click.buttonInfo());
     }
     
 }

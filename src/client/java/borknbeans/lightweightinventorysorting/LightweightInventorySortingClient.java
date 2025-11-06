@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -27,11 +28,12 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
 	}
 
 	private void registerKeyBindings() {
+        KeyBinding.Category titleCategory = KeyBinding.Category.create(Identifier.of("category.lightweight-inventory-sorting.title"));
 		sortKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.lightweight-inventory-sorting.sort",
 			InputUtil.Type.KEYSYM,
 			GLFW.GLFW_KEY_R,
-			"category.lightweight-inventory-sorting.title"
+			titleCategory
 		));
 	}
 
