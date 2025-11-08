@@ -1,13 +1,14 @@
 {
-	"required": true,
-	"package": "borknbeans.lightweightinventorysorting.mixin.client",
-	"compatibilityLevel": "JAVA_21",
-	"client": [
-		"InventoryScreenMixin",
-		"GenericContainerScreenMixin",
-		"ShulkerBoxScreenMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "borknbeans.lightweightinventorysorting.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GenericContainerScreenMixin",
+    "HorseScreenMixin",
+    "InventoryScreenMixin",
+    "ShulkerBoxScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

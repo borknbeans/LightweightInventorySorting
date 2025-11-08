@@ -2,7 +2,6 @@ package borknbeans.lightweightinventorysorting.sorting;
 
 import java.util.List;
 
-import borknbeans.lightweightinventorysorting.config.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
@@ -28,6 +27,15 @@ public class ClickOperation {
         this.expectedEndingMouseStack = expectedEndingMouseStack;
     }
 
+    // Custom exception to signal that a click was intentionally skipped
+    public static class SkippedUnsafeClickException extends Exception {
+        public final int slot;
+        public SkippedUnsafeClickException(int slot) {
+            super("Skipped unsafe click on slot " + slot);
+            this.slot = slot;
+        }
+    }
+
     public void execute() throws Exception {
         if (client.player == null) {
             throw new Exception("Player is null");
@@ -42,6 +50,12 @@ public class ClickOperation {
         if (!ItemStack.areItemsAndComponentsEqual(startingTargetStack, expectedStartingTargetStack)) {
             throw new Exception("[Target: " + targetSlot + "] Starting target stack is not what we expected: (ACTUAL)" + getItemStackString(startingTargetStack) + " != (EXPECTED)" + getItemStackString(expectedStartingTargetStack));
         }
+
+        // Safety guard:
+        if (!canSafelyClick(startingMouseStack)) {
+            throw new SkippedUnsafeClickException(targetSlot);
+        }
+
 
         click();
 
@@ -88,4 +102,27 @@ public class ClickOperation {
     private String getItemStackString(ItemStack stack) {
         return String.format("%dx %s", stack.getCount(), stack.getItem().getName().getString());
     }
+
+    private boolean canSafelyClick(ItemStack mouseStack) {
+        if (client.player == null) return false;
+
+        var handler = client.player.currentScreenHandler;
+        if (targetSlot < 0 || targetSlot >= handler.slots.size()) return false;
+
+        var slot = handler.getSlot(targetSlot);
+        if (slot == null || !slot.isEnabled()) return false;
+
+        // Equipment / non-insertable slots will often reject generic items
+        // Check both directions: whether we can place *into* this slot OR pick up from it.
+        if (!slot.canTakeItems(client.player) && !slot.hasStack()) return false;
+
+        // If holding something, make sure this slot can accept it.
+        if (!mouseStack.isEmpty() && !slot.canInsert(mouseStack)) return false;
+
+        // If this slot has special restrictions (e.g. saddle/armor), skip it.
+        if (slot.getMaxItemCount() <= 0) return false;
+
+        return true;
+    }
+
 }
