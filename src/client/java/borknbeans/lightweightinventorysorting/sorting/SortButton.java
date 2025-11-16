@@ -6,6 +6,7 @@ import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -45,7 +46,7 @@ public class SortButton extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(Click click, boolean doubled) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (client.player != null) {

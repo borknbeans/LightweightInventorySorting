@@ -3,11 +3,12 @@ package borknbeans.lightweightinventorysorting.mixin.client;
 import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
 import borknbeans.lightweightinventorysorting.config.Config;
 import borknbeans.lightweightinventorysorting.sorting.SortButton;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ShulkerBoxScreenHandler;
 import net.minecraft.text.Text;
@@ -48,20 +49,23 @@ public abstract class ShulkerBoxScreenMixin extends HandledScreen<ShulkerBoxScre
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
-        // if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
-        //     sortButton.onClick(0f, 0f); // Simulate a click
-        // }
+    public boolean keyPressed(KeyInput event) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(event)) {
+            // Create a simulated left mouse click (button 0) with no modifiers
+            MouseInput mouseInput = new MouseInput(0, 0);
+            Click simulatedClick = new Click(0.0, 0.0, mouseInput);
+            sortButton.onClick(simulatedClick, false);
+        }
 
         return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        // if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
-        //     sortButton.onClick(0f, 0f); // Simulate a click
-        // }
+    public boolean mouseClicked(Click click, boolean doubled) {
+        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(click)) {
+            sortButton.onClick(click, false); // Simulate a click
+        }
 
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(click, doubled);
     }
 }

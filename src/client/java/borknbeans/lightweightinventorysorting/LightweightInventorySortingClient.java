@@ -5,11 +5,14 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.option.KeyBinding.Category;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -31,7 +34,7 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
 			"key.lightweight-inventory-sorting.sort",
 			InputUtil.Type.KEYSYM,
 			GLFW.GLFW_KEY_R,
-			"category.lightweight-inventory-sorting.title"
+			Category.create(Identifier.of("category.lightweight-inventory-sorting.title"))
 		));
 	}
 
