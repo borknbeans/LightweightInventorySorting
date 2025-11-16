@@ -10,6 +10,8 @@ import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
 import borknbeans.lightweightinventorysorting.config.Config;
 import borknbeans.lightweightinventorysorting.sorting.SortButton;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -45,20 +47,20 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
 
     // This override is NOT an ideal solution as it could lead to conflicts with other mods
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
-            sortButton.onClick(0f, 0f); // Simulate a click
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        // if (LightweightInventorySortingClient.sortKeyBind.matchesKey(keyCode, scanCode)) {
+        //     sortButton.onClick(0f, 0f); // Simulate a click
+        // }
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
-            sortButton.onClick(0f, 0f); // Simulate a click
-        }
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        // if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(button)) {
+        //     sortButton.onClick(0f, 0f); // Simulate a click
+        // }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
     
     private void setButtonCoordinates() {
