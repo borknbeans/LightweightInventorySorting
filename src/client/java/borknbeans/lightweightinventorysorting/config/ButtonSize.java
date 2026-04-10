@@ -1,7 +1,7 @@
 package borknbeans.lightweightinventorysorting.config;
 
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public enum ButtonSize {
     SMALL,
@@ -23,7 +23,7 @@ public enum ButtonSize {
             case LARGE -> "sort_button_large";
         };
 
-        return Identifier.of(LightweightInventorySorting.MOD_ID, fileName);
+        return Identifier.fromNamespaceAndPath(LightweightInventorySorting.MOD_ID, fileName);
     }
 
     public Identifier getButtonHoverTexture() {
@@ -33,6 +33,6 @@ public enum ButtonSize {
             case LARGE -> "sort_button_large_hover";
         };
 
-        return Identifier.of(LightweightInventorySorting.MOD_ID, fileName);
+        return Identifier.fromNamespaceAndPath(LightweightInventorySorting.MOD_ID, fileName);
     }
 }

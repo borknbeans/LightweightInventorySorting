@@ -1,14 +1,13 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.ItemStack;
+
 import java.util.List;
 
-import borknbeans.lightweightinventorysorting.config.Config;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.SlotActionType;
-
 public class ClickOperation {
-    private final MinecraftClient client;
+    private final Minecraft client;
     private final int syncId;
     private final int targetSlot;
     private final ItemStack expectedStartingTargetStack;
@@ -18,7 +17,7 @@ public class ClickOperation {
 
     private final List<Integer> delays = List.of(0, 5, 15); // in milliseconds
 
-    public ClickOperation(MinecraftClient client, int syncId, int targetSlot, ItemStack expectedStartingTargetStack, ItemStack expectedEndingTargetStack, ItemStack expectedStartingMouseStack, ItemStack expectedEndingMouseStack) {
+    public ClickOperation(Minecraft client, int syncId, int targetSlot, ItemStack expectedStartingTargetStack, ItemStack expectedEndingTargetStack, ItemStack expectedStartingMouseStack, ItemStack expectedEndingMouseStack) {
         this.client = client;
         this.syncId = syncId;
         this.targetSlot = targetSlot;
@@ -34,12 +33,12 @@ public class ClickOperation {
         }
 
         ItemStack startingMouseStack = Sorter.getMouseStack(client);
-        if (!ItemStack.areItemsAndComponentsEqual(startingMouseStack, expectedStartingMouseStack)) {
+        if (!ItemStack.isSameItemSameComponents(startingMouseStack, expectedStartingMouseStack)) {
             throw new Exception("[Target: " + targetSlot + "] Starting mouse stack is not what we expected: (ACTUAL)" + getItemStackString(startingMouseStack) + " != (EXPECTED)" + getItemStackString(expectedStartingMouseStack));
         }
 
         ItemStack startingTargetStack = Sorter.getInventoryStack(client, targetSlot);
-        if (!ItemStack.areItemsAndComponentsEqual(startingTargetStack, expectedStartingTargetStack)) {
+        if (!ItemStack.isSameItemSameComponents(startingTargetStack, expectedStartingTargetStack)) {
             throw new Exception("[Target: " + targetSlot + "] Starting target stack is not what we expected: (ACTUAL)" + getItemStackString(startingTargetStack) + " != (EXPECTED)" + getItemStackString(expectedStartingTargetStack));
         }
 
@@ -50,8 +49,10 @@ public class ClickOperation {
         for (int i = 0; i < delays.size(); i++) {
             try {
                 Thread.sleep(delays.get(i));
-            } catch (InterruptedException e) {}
-    
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
             try {
                 postClickVerification();
                 return;
@@ -69,23 +70,22 @@ public class ClickOperation {
         if (client.player == null) {
             return;
         }
-
-        client.interactionManager.clickSlot(syncId, targetSlot, 0, SlotActionType.PICKUP, client.player);
+        client.gameMode.handleContainerInput(syncId, targetSlot, 0, ContainerInput.PICKUP, client.player);
     }
 
-    private void postClickVerification() throws Exception{
-        var endingMouseStack = Sorter.getMouseStack(client);
-        if (!ItemStack.areItemsAndComponentsEqual(endingMouseStack, expectedEndingMouseStack)) {
+    private void postClickVerification() throws Exception {
+        ItemStack endingMouseStack = Sorter.getMouseStack(client);
+        if (!ItemStack.isSameItemSameComponents(endingMouseStack, expectedEndingMouseStack)) {
             throw new Exception("[Target: " + targetSlot + "] Ending mouse stack is not what we expected: (ACTUAL)" + getItemStackString(endingMouseStack) + " != (EXPECTED)" + getItemStackString(expectedEndingMouseStack));
         }
 
-        var targetStack = Sorter.getInventoryStack(client, targetSlot);
-        if (!ItemStack.areItemsAndComponentsEqual(targetStack, expectedEndingTargetStack)) {
+        ItemStack targetStack = Sorter.getInventoryStack(client, targetSlot);
+        if (!ItemStack.isSameItemSameComponents(targetStack, expectedEndingTargetStack)) {
             throw new Exception("[Target: " + targetSlot + "] Ending target stack is not what we expected: (ACTUAL)" + getItemStackString(targetStack) + " != (EXPECTED)" + getItemStackString(expectedEndingTargetStack));
         }
     }
 
     private String getItemStackString(ItemStack stack) {
-        return String.format("%dx %s", stack.getCount(), stack.getItem().getName().getString());
+        return String.format("%dx %s", stack.getCount(), stack.getItem().getName(stack).getString());
     }
 }

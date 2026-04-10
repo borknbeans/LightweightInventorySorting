@@ -1,15 +1,14 @@
 package borknbeans.lightweightinventorysorting.config;
 
+import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
-import net.fabricmc.loader.api.FabricLoader;
 
 public class Config {
     private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "lightweight-inventory-sorting.json");

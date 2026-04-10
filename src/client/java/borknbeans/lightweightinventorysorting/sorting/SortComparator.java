@@ -1,8 +1,9 @@
 package borknbeans.lightweightinventorysorting.sorting;
-import java.util.Comparator;
 
 import borknbeans.lightweightinventorysorting.config.Config;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.Comparator;
 
 public class SortComparator implements Comparator<ItemStack> {
     @Override
