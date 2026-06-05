@@ -4,8 +4,12 @@ import borknbeans.lightweightinventorysorting.config.Config;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -62,6 +66,7 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
     public void onInitializeClient() {
         Config.load();
         registerKeyBindings();
+        loadResourcePacks();
     }
 
     private void registerKeyBindings() {
@@ -71,5 +76,16 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_R,
                 CATEGORY
         ));
+    }
+
+    private void loadResourcePacks() {
+        FabricLoader.getInstance().getModContainer(LightweightInventorySorting.MOD_ID).ifPresent(container ->
+                ResourceManagerHelper.registerBuiltinResourcePack(
+                    Identifier.fromNamespaceAndPath(LightweightInventorySorting.MOD_ID, "dark_mode"),
+                    container,
+                    Component.translatable("resourcepack.lightweight-inventory-sorting.dark_mode"),
+                    ResourcePackActivationType.NORMAL
+                )
+        );
     }
 }
