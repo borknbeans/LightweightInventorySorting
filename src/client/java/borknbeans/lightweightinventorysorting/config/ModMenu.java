@@ -5,8 +5,8 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class ModMenu implements ModMenuApi {
 
@@ -18,44 +18,44 @@ public class ModMenu implements ModMenuApi {
     private Screen createConfigScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Text.translatable("category.lightweight-inventory-sorting.title"));
+                .setTitle(Component.translatable("category.lightweight-inventory-sorting.title"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-        ConfigCategory generalSettings = builder.getOrCreateCategory(Text.translatable("category.lightweight-inventory-sorting.general"));
+        ConfigCategory generalSettings = builder.getOrCreateCategory(Component.translatable("category.lightweight-inventory-sorting.general"));
 
-        generalSettings.addEntry(entryBuilder.startTextDescription(Text.translatable("category.lightweight-inventory-sorting.sort-options"))
+        generalSettings.addEntry(entryBuilder.startTextDescription(Component.translatable("category.lightweight-inventory-sorting.sort-options"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startEnumSelector(
-                        Text.translatable("category.lightweight-inventory-sorting.sort-type"),
+                        Component.translatable("category.lightweight-inventory-sorting.sort-type"),
                         SortType.class,
                         Config.sortType
                 ).setDefaultValue(SortType.INDEX)
                 .setSaveConsumer(newValue -> Config.sortType = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.sort-type-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.sort-type-tooltip"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startBooleanToggle(
-                        Text.translatable("category.lightweight-inventory-sorting.reverse-sort"),
+                        Component.translatable("category.lightweight-inventory-sorting.reverse-sort"),
                         Config.reverseSort
                 ).setDefaultValue(false)
                 .setSaveConsumer(newValue -> Config.reverseSort = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.reverse-sort-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.reverse-sort-tooltip"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startIntField(
-                        Text.translatable("category.lightweight-inventory-sorting.sort-delay"),
+                        Component.translatable("category.lightweight-inventory-sorting.sort-delay"),
                         Config.sortDelay
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> Config.sortDelay = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.sort-delay-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.sort-delay-tooltip"))
                 .build());
 
-        generalSettings.addEntry(entryBuilder.startTextDescription(Text.translatable("category.lightweight-inventory-sorting.button-options"))
+        generalSettings.addEntry(entryBuilder.startTextDescription(Component.translatable("category.lightweight-inventory-sorting.button-options"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startEnumSelector(
-                        Text.translatable("category.lightweight-inventory-sorting.button-size"),
+                        Component.translatable("category.lightweight-inventory-sorting.button-size"),
                         ButtonSize.class,
                         Config.buttonSize
                 ).setDefaultValue(ButtonSize.LARGE)
@@ -63,35 +63,35 @@ public class ModMenu implements ModMenuApi {
                 .build());
 
         generalSettings.addEntry(entryBuilder.startIntField(
-                    Text.translatable("category.lightweight-inventory-sorting.inventory-x"),
-                    Config.xOffsetInventory
+                        Component.translatable("category.lightweight-inventory-sorting.inventory-x"),
+                        Config.xOffsetInventory
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> Config.xOffsetInventory = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.inventory-x-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.inventory-x-tooltip"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startIntField(
-                        Text.translatable("category.lightweight-inventory-sorting.inventory-y"),
+                        Component.translatable("category.lightweight-inventory-sorting.inventory-y"),
                         Config.yOffsetInventory
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> Config.yOffsetInventory = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.inventory-y-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.inventory-y-tooltip"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startIntField(
-                        Text.translatable("category.lightweight-inventory-sorting.container-x"),
+                        Component.translatable("category.lightweight-inventory-sorting.container-x"),
                         Config.xOffsetContainer
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> Config.xOffsetContainer = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.container-x-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.container-x-tooltip"))
                 .build());
 
         generalSettings.addEntry(entryBuilder.startIntField(
-                        Text.translatable("category.lightweight-inventory-sorting.container-y"),
+                        Component.translatable("category.lightweight-inventory-sorting.container-y"),
                         Config.yOffsetContainer
                 ).setDefaultValue(0)
                 .setSaveConsumer(newValue -> Config.yOffsetContainer = newValue)
-                .setTooltip(Text.translatable("category.lightweight-inventory-sorting.container-y-tooltip"))
+                .setTooltip(Component.translatable("category.lightweight-inventory-sorting.container-y-tooltip"))
                 .build());
 
         builder.setSavingRunnable(Config::save);

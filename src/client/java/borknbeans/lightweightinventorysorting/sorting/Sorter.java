@@ -1,21 +1,24 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.BundleItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sorter {
 
-    private static boolean isSorting = false;
+    private static volatile boolean isSorting = false;
 
-    public static void sortContainerClientside(MinecraftClient client, int sortStartIndex, int sortEndIndex) {
+    public static void sortContainerClientside(Minecraft client, int sortStartIndex, int sortEndIndex) {
         if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
             return;
         }
@@ -25,10 +28,11 @@ public class Sorter {
 
         LightweightInventorySorting.LOGGER.info("Starting clientside sort");
 
-        var syncId = client.player.currentScreenHandler.syncId;
+        AbstractContainerMenu container = client.player.containerMenu;
+        int syncId = container.containerId;
 
-        var snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
-        var snapshotEncoder = new SortSnapshotClientside(snapshot);
+        List<ItemStack> snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
+        SortSnapshotClientside snapshotEncoder = new SortSnapshotClientside(snapshot);
         LightweightInventorySorting.LOGGER.info("Encoded snapshot: " + snapshotEncoder.encode());
 
         // Run the sort in a new thread
@@ -46,55 +50,55 @@ public class Sorter {
         }).start();
     }
 
-    private static void clearMouseStack(MinecraftClient client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
-        var snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
+    private static void clearMouseStack(Minecraft client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
+        List<ItemStack> snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
 
         // Clear any existing item that is on the mouse
-        var mouseStack = getMouseStack(client).copy();
+        ItemStack mouseStack = getMouseStack(client).copy();
         if (!mouseStack.isEmpty()) {
-            var emptyIndex = getEmptySlotIndex(snapshot);
+            int emptyIndex = getEmptySlotIndex(snapshot);
             if (emptyIndex == -1) {
                 throw new Exception("[Sort] No empty slot found to clear mouse stack");
             }
 
-            var emptySlotOperation = new ClickOperation(client, syncId, sortStartIndex + emptyIndex, ItemStack.EMPTY, mouseStack, mouseStack, ItemStack.EMPTY);
+            ClickOperation emptySlotOperation = new ClickOperation(client, syncId, sortStartIndex + emptyIndex, ItemStack.EMPTY, mouseStack, mouseStack, ItemStack.EMPTY);
             emptySlotOperation.execute();
         }
     }
 
-    private static void combineLikeStacks(MinecraftClient client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
-        var snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
-        var mouseStack = getMouseStack(client);
+    private static void combineLikeStacks(Minecraft client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
+        List<ItemStack> snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
+        ItemStack mouseStack = getMouseStack(client);
 
         if (!mouseStack.isEmpty()) {
             throw new Exception("[CombineLikeStacks] Mouse stack is not empty");
         }
 
         for (int i = 0; i < snapshot.size(); i++) {
-            var stackOriginal = snapshot.get(i).copy();
+            ItemStack stackOriginal = snapshot.get(i).copy();
             mouseStack = getMouseStack(client);
-            if (stackOriginal.isEmpty() || stackOriginal.getCount() == stackOriginal.getMaxCount()) {
+            if (stackOriginal.isEmpty() || stackOriginal.getCount() == stackOriginal.getMaxStackSize()) {
                 continue;
             }
 
             for (int j = i + 1; j < snapshot.size(); j++) {
-                var otherStack = snapshot.get(j).copy();
-                if (otherStack.isEmpty() || otherStack.getCount() == otherStack.getMaxCount()) {
+                ItemStack otherStack = snapshot.get(j).copy();
+                if (otherStack.isEmpty() || otherStack.getCount() == otherStack.getMaxStackSize()) {
                     continue;
                 }
 
-                var stack = mouseStack.isEmpty() ? stackOriginal : mouseStack;
+                ItemStack stack = mouseStack.isEmpty() ? stackOriginal : mouseStack;
 
-                if (ItemStack.areItemsAndComponentsEqual(stack, otherStack)) {
-                    var maxStackSize = stack.getMaxCount();
-                    var combinedSize = stack.getCount() + otherStack.getCount();
+                if (ItemStack.isSameItemSameComponents(stack, otherStack)) {
+                    int maxStackSize = stack.getMaxStackSize();
+                    int combinedSize = stack.getCount() + otherStack.getCount();
 
-                    var pickupFirstStack = new ClickOperation(client, syncId, i + sortStartIndex, stack, ItemStack.EMPTY, mouseStack, stack);
+                    ClickOperation pickupFirstStack = new ClickOperation(client, syncId, i + sortStartIndex, stack, ItemStack.EMPTY, mouseStack, stack);
 
-                    var expectedEndingMouseStack = combinedSize > maxStackSize ? stack.copyWithCount(combinedSize - maxStackSize) : ItemStack.EMPTY;
-                    var combineStacks = new ClickOperation(client, syncId, j + sortStartIndex, otherStack, stack.copyWithCount(Math.min(combinedSize, maxStackSize)), stack, expectedEndingMouseStack);
+                    ItemStack expectedEndingMouseStack = combinedSize > maxStackSize ? stack.copyWithCount(combinedSize - maxStackSize) : ItemStack.EMPTY;
+                    ClickOperation combineStacks = new ClickOperation(client, syncId, j + sortStartIndex, otherStack, stack.copyWithCount(Math.min(combinedSize, maxStackSize)), stack, expectedEndingMouseStack);
                     try {
-                        if (mouseStack.isEmpty()) { // Dont pickup first stack if we have a stack in our hand from the previous iteration
+                        if (mouseStack.isEmpty()) { // Don't pick up first stack if we have a stack in our hand from the previous iteration
                             pickupFirstStack.execute();
                         }
                         Thread.sleep(Config.sortDelay);
@@ -112,7 +116,7 @@ public class Sorter {
             }
 
             if (!mouseStack.isEmpty()) {
-                var putBackStack = new ClickOperation(client, syncId, i + sortStartIndex, ItemStack.EMPTY, mouseStack, mouseStack, ItemStack.EMPTY);
+                ClickOperation putBackStack = new ClickOperation(client, syncId, i + sortStartIndex, ItemStack.EMPTY, mouseStack, mouseStack, ItemStack.EMPTY);
 
                 try {
                     putBackStack.execute();
@@ -125,12 +129,12 @@ public class Sorter {
         }
     }
 
-    private static void sort(MinecraftClient client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
-        var snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
+    private static void sort(Minecraft client, int syncId, int sortStartIndex, int sortEndIndex) throws Exception {
+        List<ItemStack> snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
 
-        var sortedStacks = new ArrayList<ItemStack>();
+        ArrayList<ItemStack> sortedStacks = new ArrayList<ItemStack>();
         for (int i = 0; i < snapshot.size(); i++) {
-            var stack = snapshot.get(i).copy();
+            ItemStack stack = snapshot.get(i).copy();
             if (stack.isEmpty()) {
                 continue;
             }
@@ -140,18 +144,18 @@ public class Sorter {
 
         sortedStacks.sort(new SortComparator());
 
-        var mouseStack = getMouseStack(client);
+        ItemStack mouseStack = getMouseStack(client);
 
         if (!mouseStack.isEmpty()) {
             throw new Exception("[Sort] Mouse stack is not empty");
         }
 
         for (int i = 0; i < sortedStacks.size(); i++) {
-            var sortedStack = sortedStacks.get(i);
+            ItemStack sortedStack = sortedStacks.get(i);
 
-            var stackCurrIndex = -1;
+            int stackCurrIndex = -1;
             for (int j = i; j < snapshot.size(); j++) {
-                if (ItemStack.areItemsAndComponentsEqual(sortedStack, snapshot.get(j)) && sortedStack.getCount() == snapshot.get(j).getCount()) {
+                if (ItemStack.isSameItemSameComponents(sortedStack, snapshot.get(j)) && sortedStack.getCount() == snapshot.get(j).getCount()) {
                     stackCurrIndex = j + sortStartIndex;
                     break;
                 }
@@ -165,14 +169,14 @@ public class Sorter {
                 continue;
             }
 
-            var pickupOperation = new ClickOperation(client, syncId, stackCurrIndex, sortedStack, ItemStack.EMPTY, ItemStack.EMPTY, sortedStack);
+            ClickOperation pickupOperation = new ClickOperation(client, syncId, stackCurrIndex, sortedStack, ItemStack.EMPTY, ItemStack.EMPTY, sortedStack);
 
-            var existingStack = snapshot.get(i).copy();
+            ItemStack existingStack = snapshot.get(i).copy();
 
             // If the item that is in our desired slot is a bundle, we need to handle it differently
             if (existingStack.getItem() instanceof BundleItem) {
-                var pickupBundleOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, ItemStack.EMPTY, ItemStack.EMPTY, existingStack);
-                var placeBundleElsewhereOperation = new ClickOperation(client, syncId, getEmptySlotIndex(snapshot) + sortStartIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
+                ClickOperation pickupBundleOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, ItemStack.EMPTY, ItemStack.EMPTY, existingStack);
+                ClickOperation placeBundleElsewhereOperation = new ClickOperation(client, syncId, getEmptySlotIndex(snapshot) + sortStartIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
 
                 pickupBundleOperation.execute();
                 placeBundleElsewhereOperation.execute();
@@ -180,21 +184,21 @@ public class Sorter {
                 existingStack = ItemStack.EMPTY;
             }
 
-            var placeOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, sortedStack, sortedStack, existingStack);
+            ClickOperation placeOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, sortedStack, sortedStack, existingStack);
 
-            var emptyHandOperation = new ClickOperation(client, syncId, stackCurrIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
-            
+            ClickOperation emptyHandOperation = new ClickOperation(client, syncId, stackCurrIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
+
             // If the item we are sorting is a bundle, we need to handle it differently
             if (sortedStack.getItem() instanceof BundleItem) {
                 if (!existingStack.isEmpty()) {
-                    var pickupTargetSlotOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, ItemStack.EMPTY, ItemStack.EMPTY, existingStack);
-                    var emptySlotIndex = getEmptySlotIndex(snapshot);
+                    ClickOperation pickupTargetSlotOperation = new ClickOperation(client, syncId, i + sortStartIndex, existingStack, ItemStack.EMPTY, ItemStack.EMPTY, existingStack);
+                    int emptySlotIndex = getEmptySlotIndex(snapshot);
 
                     if (emptySlotIndex == -1) {
                         throw new Exception("[Sort] No empty slot found");
                     }
 
-                    var placeInEmptySlotOperation = new ClickOperation(client, syncId, sortStartIndex + emptySlotIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
+                    ClickOperation placeInEmptySlotOperation = new ClickOperation(client, syncId, sortStartIndex + emptySlotIndex, ItemStack.EMPTY, existingStack, existingStack, ItemStack.EMPTY);
 
                     pickupTargetSlotOperation.execute();
                     placeInEmptySlotOperation.execute();
@@ -218,10 +222,10 @@ public class Sorter {
         }
 
         for (int i = 0; i < sortedStacks.size(); i++) {
-            var expectedStack = sortedStacks.get(i).copy();
-            var actualStack = snapshot.get(i).copy();
+            ItemStack expectedStack = sortedStacks.get(i).copy();
+            ItemStack actualStack = snapshot.get(i).copy();
 
-            if (!ItemStack.areItemsAndComponentsEqual(expectedStack, actualStack)) {
+            if (!ItemStack.isSameItemSameComponents(expectedStack, actualStack)) {
                 throw new Exception("[Sort] Stack not in correct position");
             }
         }
@@ -236,8 +240,8 @@ public class Sorter {
      * 36-44: hotbar
      * 45: offhand
      */
-    private static List<ItemStack> getInventorySnapshot(MinecraftClient client, int sortStartIndex, int sortEndIndex) {
-        var slots = client.player.currentScreenHandler.slots;
+    private static List<ItemStack> getInventorySnapshot(Minecraft client, int sortStartIndex, int sortEndIndex) {
+        NonNullList<Slot> slots = client.player.containerMenu.slots;
 
         List<ItemStack> snapshot = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
@@ -245,7 +249,7 @@ public class Sorter {
                 continue;
             }
 
-            snapshot.add(slots.get(i).getStack());
+            snapshot.add(slots.get(i).getItem());
         }
 
         return snapshot;
@@ -260,19 +264,19 @@ public class Sorter {
         return -1;
     }
 
-    public static ItemStack getInventoryStack(MinecraftClient client, int index) {
+    public static ItemStack getInventoryStack(Minecraft client, int index) {
         if (client.player == null) {
             return ItemStack.EMPTY;
         }
 
-        return client.player.currentScreenHandler.getSlot(index).getStack();
+        return client.player.containerMenu.getSlot(index).getItem();
     }
 
-    public static ItemStack getMouseStack(MinecraftClient client) {
+    public static ItemStack getMouseStack(Minecraft client) {
         if (client.player == null) {
             return ItemStack.EMPTY;
         }
 
-        return client.player.currentScreenHandler.getCursorStack();
+        return client.player.containerMenu.getCarried();
     }
 }

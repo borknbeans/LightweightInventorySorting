@@ -1,54 +1,49 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-
 import borknbeans.lightweightinventorysorting.LightweightInventorySorting;
 import borknbeans.lightweightinventorysorting.config.Config;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
-public class SortButton extends ClickableWidget {
+public class SortButton extends AbstractWidget {
 
-    private Identifier buttonTexture;
-    private Identifier buttonHoverTexture;
+    private final Identifier buttonTexture;
+    private final Identifier buttonHoverTexture;
+    private final int sortStartIndex;
+    private final int sortEndIndex;
 
-    private int sortStartIndex, sortEndIndex;
-
-    public SortButton(int x, int y, int width, int height, Text message, int startIndex, int endIndex) {
+    public SortButton(int x, int y, int width, int height, Component message, int startIndex, int endIndex) {
         super(x, y, width, height, message);
-
         this.sortStartIndex = startIndex;
         this.sortEndIndex = endIndex;
+        this.buttonTexture = Config.buttonSize.getButtonTexture();
+        this.buttonHoverTexture = Config.buttonSize.getButtonHoverTexture();
+    }
 
-        buttonTexture = Config.buttonSize.getButtonTexture();
-        buttonHoverTexture = Config.buttonSize.getButtonHoverTexture();
+    public int getSortStartIndex() {
+        return sortStartIndex;
+    }
+
+    public int getSortEndIndex() {
+        return sortEndIndex;
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-        // Narration message if needed
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        Identifier texture = this.isHovered() ? buttonHoverTexture : buttonTexture;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (this.isHovered()) {
-            context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, buttonHoverTexture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        } else {
-            context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, buttonTexture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        }
-    }
-
-    @Override
-    public void onClick(Click click, boolean doubled) {
-        MinecraftClient client = MinecraftClient.getInstance();
-
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
             Sorter.sortContainerClientside(client, sortStartIndex, sortEndIndex);
             // TODO: handle server-side sorting if enabled
@@ -56,5 +51,16 @@ public class SortButton extends ClickableWidget {
             LightweightInventorySorting.LOGGER.error("Player is not available.");
         }
     }
-    
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        output.add(NarratedElementType.TITLE, this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
+            } else {
+                output.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.hovered"));
+            }
+        }
+    }
 }

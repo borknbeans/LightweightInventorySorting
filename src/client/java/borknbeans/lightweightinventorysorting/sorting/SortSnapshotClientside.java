@@ -1,8 +1,8 @@
 package borknbeans.lightweightinventorysorting.sorting;
 
 import com.google.gson.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,17 +19,17 @@ public class SortSnapshotClientside {
     }
 
     public String encode() {
-        var gson = new GsonBuilder()
-            .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
-            .create();
-        var json = gson.toJson(this);
-        
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
+                .create();
+        String json = gson.toJson(this);
+
         try {
-            var baos = new ByteArrayOutputStream();
-            var gzipOut = new GZIPOutputStream(baos);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            GZIPOutputStream gzipOut = new GZIPOutputStream(baos);
             gzipOut.write(json.getBytes());
             gzipOut.close();
-            
+
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException("Failed to compress inventory data", e);
@@ -39,17 +39,14 @@ public class SortSnapshotClientside {
     private static class ItemStackSerializer implements JsonSerializer<ItemStack> {
         @Override
         public JsonElement serialize(ItemStack src, Type typeOfSrc, JsonSerializationContext context) {
-            var json = new JsonObject();
-            
+            JsonObject json = new JsonObject();
             if (src.isEmpty()) {
                 json.addProperty("empty", true);
                 return json;
             }
-
-            json.addProperty("id", Registries.ITEM.getId(src.getItem()).toString());
+            json.addProperty("id", BuiltInRegistries.ITEM.getKey(src.getItem()).toString());
             json.addProperty("count", src.getCount());
-
             return json;
         }
     }
-} 
+}

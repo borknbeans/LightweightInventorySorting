@@ -1,15 +1,15 @@
 package borknbeans.lightweightinventorysorting.config;
 
 import borknbeans.lightweightinventorysorting.LightweightInventorySortingClient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Comparator;
 
 public enum SortType {
     INDEX(Comparator.comparingInt(LightweightInventorySortingClient::getCreativeIndex)),
-    ALPHANUMERIC(Comparator.comparing(stack -> stack.getName().getString())),
-    RAW_ID(Comparator.comparingInt(stack -> Item.getRawId(stack.getItem())));
+    ALPHANUMERIC(Comparator.comparing(stack -> stack.getItemName().getString())),
+    RAW_ID(Comparator.comparingInt(stack -> Item.getId(stack.getItem())));
 
     public final Comparator<ItemStack> comparator;
 
