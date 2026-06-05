@@ -3,6 +3,7 @@ package borknbeans.lightweightinventorysorting;
 import borknbeans.lightweightinventorysorting.config.Config;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -64,11 +65,11 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
     }
 
     private void registerKeyBindings() {
-        sortKeyBind = new KeyMapping(
+        sortKeyBind = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.lightweight-inventory-sorting.sort",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 CATEGORY
-        );
+        ));
     }
 }

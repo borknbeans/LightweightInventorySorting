@@ -36,6 +36,15 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         this.addRenderableWidget(sortButton);
     }
 
+    // Toggling the recipe book shifts leftPos without re-running init(), so
+    // reposition the sort button whenever the recipe book is opened/closed.
+    @Inject(method = "onRecipeBookButtonClick", at = @At("RETURN"))
+    private void onRecipeBookToggle(CallbackInfo ci) {
+        if (sortButton != null) {
+            setButtonCoordinates();
+        }
+    }
+
 
     @Override
     public boolean keyPressed(KeyEvent event) {
