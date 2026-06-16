@@ -6,7 +6,8 @@
 		"InventoryScreenMixin",
 		"ContainerScreenMixin",
 		"ShulkerBoxScreenMixin",
-		"HorseInventoryScreenMixin"
+		"HorseInventoryScreenMixin",
+		"CreativeModeInventoryScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -84,6 +84,16 @@ public class Sorter {
         AbstractContainerMenu container = client.player.containerMenu;
         int syncId = container.containerId;
 
+        // Debug: Print all slots
+        LightweightInventorySorting.LOGGER.info("=== ALL SLOTS BEFORE SORTING ===");
+        for (int i = 0; i < container.slots.size(); i++) {
+            Slot slot = container.slots.get(i);
+            ItemStack item = slot.getItem();
+            LightweightInventorySorting.LOGGER.info("Slot [" + i + "]: " + (item.isEmpty() ? "EMPTY" : item.getCount() + "x " + item.getItem().getName(item).getString()));
+        }
+        LightweightInventorySorting.LOGGER.info("Sort range: " + sortStartIndex + " to " + sortEndIndex);
+        LightweightInventorySorting.LOGGER.info("=== END SLOT LIST ===");
+
         List<ItemStack> snapshot = getInventorySnapshot(client, sortStartIndex, sortEndIndex);
         SortSnapshotClientside snapshotEncoder = new SortSnapshotClientside(snapshot);
         LightweightInventorySorting.LOGGER.info("Encoded snapshot: " + snapshotEncoder.encode());
