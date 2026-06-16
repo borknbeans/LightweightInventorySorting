@@ -4,8 +4,9 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"InventoryScreenMixin",
-		"GenericContainerScreenMixin",
-		"ShulkerBoxScreenMixin"
+		"ContainerScreenMixin",
+		"ShulkerBoxScreenMixin",
+		"HorseInventoryScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
