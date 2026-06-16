@@ -2,7 +2,9 @@ package borknbeans.lightweightinventorysorting.sorting;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -16,6 +18,15 @@ public class ClickOperation {
     private final ItemStack expectedEndingMouseStack;
 
     private final List<Integer> delays = List.of(0, 5, 15); // in milliseconds
+
+    // Custom exception to signal that a click was intentionally skipped due to unsafe conditions
+    public static class SkippedUnsafeClickException extends Exception {
+        public final int slot;
+        public SkippedUnsafeClickException(int slot) {
+            super("Skipped unsafe click on slot " + slot);
+            this.slot = slot;
+        }
+    }
 
     public ClickOperation(Minecraft client, int syncId, int targetSlot, ItemStack expectedStartingTargetStack, ItemStack expectedEndingTargetStack, ItemStack expectedStartingMouseStack, ItemStack expectedEndingMouseStack) {
         this.client = client;
@@ -40,6 +51,11 @@ public class ClickOperation {
         ItemStack startingTargetStack = Sorter.getInventoryStack(client, targetSlot);
         if (!ItemStack.isSameItemSameComponents(startingTargetStack, expectedStartingTargetStack)) {
             throw new Exception("[Target: " + targetSlot + "] Starting target stack is not what we expected: (ACTUAL)" + getItemStackString(startingTargetStack) + " != (EXPECTED)" + getItemStackString(expectedStartingTargetStack));
+        }
+
+        // Safety guard: Check if this click is safe
+        if (!canSafelyClick(client, startingMouseStack)) {
+            throw new SkippedUnsafeClickException(targetSlot);
         }
 
         click();
@@ -87,5 +103,28 @@ public class ClickOperation {
 
     private String getItemStackString(ItemStack stack) {
         return String.format("%dx %s", stack.getCount(), stack.getItem().getName(stack).getString());
+    }
+
+    // Safety check: Verify slot is valid and can accept the item in hand
+    private boolean canSafelyClick(Minecraft client, ItemStack mouseStack) {
+        if (client.player == null) return false;
+
+        var handler = client.player.containerMenu;
+        if (targetSlot < 0 || targetSlot >= handler.slots.size()) return false;
+
+        var slot = handler.getSlot(targetSlot);
+        if (slot == null || !slot.isActive()) return false;
+
+        // Equipment / non-insertable slots will often reject generic items
+        // Check both directions: whether we can take items FROM this slot OR insert INTO it
+        if (!slot.mayPickup(client.player) && !slot.hasItem()) return false;
+
+        // If holding something, make sure this slot can accept it
+        if (!mouseStack.isEmpty() && !slot.mayPlace(mouseStack)) return false;
+
+        // If this slot has special restrictions (e.g. saddle/armor), skip it
+        if (slot.getMaxStackSize() <= 0) return false;
+
+        return true;
     }
 }
