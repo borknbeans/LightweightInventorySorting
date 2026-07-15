@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,6 +17,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreen<AbstractContainerMenu> {
@@ -66,28 +66,14 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
         }
     }
 
-    @Override
-    public boolean keyPressed(KeyEvent event) {
-        // Only allow sorting when on inventory tab
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void onKeyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (isInventoryTab() && LightweightInventorySortingClient.sortKeyBind.matches(event)) {
             if (sortButton != null) {
                 Sorter.sortContainerClientside(Minecraft.getInstance(), sortButton.getSortStartIndex(), sortButton.getSortEndIndex());
             }
-            return true;
+            cir.setReturnValue(true);
         }
-        return super.keyPressed(event);
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        // Only allow sorting when on inventory tab
-        if (isInventoryTab() && LightweightInventorySortingClient.sortKeyBind.matchesMouse(event)) {
-            if (sortButton != null) {
-                Sorter.sortContainerClientside(Minecraft.getInstance(), sortButton.getSortStartIndex(), sortButton.getSortEndIndex());
-            }
-            return true;
-        }
-        return super.mouseClicked(event, doubleClick);
     }
 
     @Unique
