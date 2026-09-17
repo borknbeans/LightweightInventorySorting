@@ -15,7 +15,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,8 +71,8 @@ public class LightweightInventorySortingClient implements ClientModInitializer {
     private void registerKeyBindings() {
         sortKeyBind = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.lightweight-inventory-sorting.sort",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_R,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_R,
                 CATEGORY
         ));
     }

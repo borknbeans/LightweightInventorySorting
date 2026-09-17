@@ -13,7 +13,8 @@
 		"RuyaSavascisi",
 		"LarsMans64",
         "gabrtzweb",
-        "kuroneko007"
+        "kuroneko007",
+		"AdamFrostVK"
 	],
 	"contact": {
 		"sources": "https://github.com/borknbeans/LightweightInventorySorting/tree/main"
@@ -41,7 +42,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
-		"minecraft": ">=26.1 <26.3",
+		"minecraft": ">=26.3 <26.4",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
