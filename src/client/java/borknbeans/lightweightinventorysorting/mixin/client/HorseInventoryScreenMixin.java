@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.HorseInventoryMenu;
@@ -46,16 +45,5 @@ public abstract class HorseInventoryScreenMixin extends AbstractContainerScreen<
             return true;
         }
         return super.keyPressed(event);
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (LightweightInventorySortingClient.sortKeyBind.matchesMouse(event)) {
-            if (sortButton != null) {
-                Sorter.sortContainerClientside(Minecraft.getInstance(), sortButton.getSortStartIndex(), sortButton.getSortEndIndex());
-            }
-            return true;
-        }
-        return super.mouseClicked(event, doubleClick);
     }
 }
